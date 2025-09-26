@@ -28,6 +28,15 @@ function randomNormal(mu=0, sigma=1) {
   while(v === 0) v = Math.random();
   return mu + sigma * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
+function updatePickOptions() {
+    const homeTeam = document.getElementById('homeSelect').value;
+    const awayTeam = document.getElementById('awaySelect').value;
+    const pickSelect = document.getElementById('pick');
+    pickSelect.options[0].text = `${homeTeam}`;
+    pickSelect.options[1].text = 'Draw';
+    pickSelect.options[2].text = `${awayTeam}`;
+}
+
 
 /* clamp helper */
 function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
@@ -306,7 +315,7 @@ loss: 4
 draw: 14
 
 Team: Nova Bana
-elo: 100
+elo: 180
 goals_scored: 69
 goals_conceded: 158
 yellow: 65
@@ -330,7 +339,7 @@ draw: 13
 function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   const st1 = TEAMS[homeName];
   const st2 = TEAMS[awayName];
-  if (!st1 || !st2) throw new Error('Tímy neexistujú');
+  if (!st1 || !st2) throw new Error('Teams do not exist');
 
   // expected goals
   let [exp_g1, exp_g2] = expectedGoals(st1.elo||1000, st2.elo||1000);
@@ -353,12 +362,12 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
 
   function buildEvents() {
     const events = [];
-    for (const m of sampleMinutes(g1, totalM)) events.push([m, `⚽ Gól! ${homeName} skóroval.`]);
-    for (const m of sampleMinutes(g2, totalM)) events.push([m, `⚽ Gól! ${awayName} skóroval.`]);
-    for (const m of sampleMinutes(yellow1, totalM)) events.push([m, `🟨 Žltá karta pre ${homeName}`]);
-    for (const m of sampleMinutes(yellow2, totalM)) events.push([m, `🟨 Žltá karta pre ${awayName}`]);
-    for (const m of sampleMinutes(red1, totalM)) events.push([m, `🟥 Červená karta pre ${homeName}`]);
-    for (const m of sampleMinutes(red2, totalM)) events.push([m, `🟥 Červená karta pre ${awayName}`]);
+    for (const m of sampleMinutes(g1, totalM)) events.push([m, `⚽ Goal! ${homeName} scored.`]);
+    for (const m of sampleMinutes(g2, totalM)) events.push([m, `⚽ Goal! ${awayName} scored.`]);
+    for (const m of sampleMinutes(yellow1, totalM)) events.push([m, `🟨 Yellow card for ${homeName}`]);
+    for (const m of sampleMinutes(yellow2, totalM)) events.push([m, `🟨 Yellow card for ${awayName}`]);
+    for (const m of sampleMinutes(red1, totalM)) events.push([m, `🟥 Red card for ${homeName}`]);
+    for (const m of sampleMinutes(red2, totalM)) events.push([m, `🟥 Red card for ${awayName}`]);
     events.sort((a,b)=> a[0]-b[0]);
     return events;
   }
@@ -444,11 +453,11 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
       skutocny_tip: g1>g2 ? '1' : g2>g1 ? '2' : 'X',
       statistiky: {
         [homeName]: {
-          goly: g1, strely: strely1, "strely na bránu": naBranu1, "držanie lopty": drzanie1,
+          goly: g1, strely: strely1, "shots on target": naBranu1, "possession": drzanie1,
           rohy: rohy1, offsides: offs1, fauly: fauly1, žlté: yellow1, červené: red1
         },
         [awayName]: {
-          goly: g2, strely: strely2, "strely na bránu": naBranu2, "držanie lopty": drzanie2,
+          goly: g2, strely: strely2, "shots on target": naBranu2, "possession": drzanie2,
           rohy: rohy2, offsides: offs2, fauly: fauly2, žlté: yellow2, červené: red2
         }
       },
@@ -463,31 +472,68 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
 /* helpers */
 function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 
-document.getElementById('computeOdds').addEventListener('click', ()=>{
+let selectedPick = null;  // "1", "X", "2"
+
+// Update pick options when team selection changes
+document.getElementById('homeSelect').addEventListener('change', updatePickOptions);
+document.getElementById('awaySelect').addEventListener('change', updatePickOptions);
+
+document.getElementById('computeOdds').addEventListener('click', () => {
   const h = document.getElementById('homeSelect').value;
   const a = document.getElementById('awaySelect').value;
-  if (!h || !a || h===a) return alert('Vyber dva rôzne tímy.');
+  if (!h || !a || h === a) return alert('Vyber dva rôzne tímy.');
+
   const odds = calcOdds(TEAMS[h], TEAMS[a]);
-  document.getElementById('oddsArea').innerHTML = `<strong>Kurzy</strong>: ${h} = ${odds.home}, X = ${odds.draw}, ${a} = ${odds.away}`;
-  document.getElementById('betArea').hidden = false;
-  // store last odds for bet
   window.__lastOdds = odds;
-  window.__lastTeams = {home:h, away:a};
+  window.__lastTeams = { home: h, away: a };
+
+  // Nastav texty tlačidiel
+  document.getElementById('oddsArea').textContent = 'Select your bet:';
+  btnHome.textContent = `${h} (${odds.home})`;
+  btnDraw.textContent = `Draw (${odds.draw})`;
+  btnAway.textContent = `${a} (${odds.away})`;
+
+  // Aktivuj tlačidlá
+  [btnHome, btnDraw, btnAway].forEach(b => b.disabled = false);
+
+  document.getElementById('betArea').hidden = false;
 });
 
-document.getElementById('placeBet').addEventListener('click', async ()=>{
-  const pick = document.getElementById('pick').value;
+const btnHome = document.getElementById('btnHome');
+const btnDraw = document.getElementById('btnDraw');
+const btnAway = document.getElementById('btnAway');
+
+const buttons = document.querySelectorAll('#oddsButtons button');
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // najprv všetkým vynulujeme farbu
+    buttons.forEach(b => b.style.backgroundColor = '');
+    // kliknutému nastavíme zelenú
+    btn.style.backgroundColor = 'green';
+  });
+});
+
+
+btnHome.addEventListener('click', () => { selectedPick = '1'; highlight(btnHome); });
+btnDraw.addEventListener('click', () => { selectedPick = 'X'; highlight(btnDraw); });
+btnAway.addEventListener('click', () => { selectedPick = '2'; highlight(btnAway); });
+
+
+document.getElementById('placeBet').addEventListener('click', async () => {
+  if (!selectedPick) return alert('Najprv klikni na kurz.');
+  const pick = selectedPick;
   let stake = parseFloat(document.getElementById('stake').value);
-  if (isNaN(stake) || stake < 0.5) return alert('Zadaj vklad minimálne 0.5 €');
-  if (stake > 10000) return alert('Maximálny vklad 10000 €');
+  if (isNaN(stake) || stake < 0.5) return alert('Enter bet, min - 0.5 €');
+  if (stake > 10000) return alert('Maximal bet is 10000 €');
   let balance = loadBalance();
-  if (stake > balance) return alert('Nedostatok prostriedkov.');
+  if (stake > balance) return alert('insufficient funds.');
 
   // lock UI
   document.getElementById('placeBet').disabled = true;
   document.getElementById('computeOdds').disabled = true;
-  document.getElementById('playArea').innerHTML = 'Simulujem...';
-  document.getElementById('resultArea').textContent = 'Simulujem...';
+  document.getElementById('playArea').innerHTML = 'Simulating...';
+  document.getElementById('resultArea').textContent = 'Simulating...';
 
   const speed = parseInt(document.getElementById('speed').value, 10);
   const rounds = Math.max(1, Math.min(20, parseInt(document.getElementById('rounds').value,10) || 1));
@@ -514,9 +560,9 @@ document.getElementById('placeBet').addEventListener('click', async ()=>{
     document.getElementById('resultArea').innerHTML = `
       <div><strong>${res.vysledok}</strong></div>
       <div style="margin-top:6px">
-        <div><em>Štatistiky</em></div>
+        <div><em>Statistics</em></div>
         <table class="statstable">
-          <thead><tr><th>Tím</th><th>Góly</th><th>Strely</th><th>Na bránu</th><th>Žlté karty</th><th>Červené karty</th><th>Držanie</th></tr></thead>
+          <thead><tr><th>Team</th><th>Goals</th><th>Shots</th><th>On target</th><th>🟨</th><th>🟥</th><th>Possession</th></tr></thead>
           <tbody>
             <tr><td>${Object.keys(res.statistiky)[0]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]].goly}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]].strely}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["strely na bránu"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["zlte karty"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["cervene karty"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["držanie lopty"]}%</td></tr>
             <tr><td>${Object.keys(res.statistiky)[1]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]].goly}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]].strely}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["strely na bránu"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["zlte karty"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["cervene karty"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["držanie lopty"]}%</td></tr>
@@ -532,10 +578,10 @@ document.getElementById('placeBet').addEventListener('click', async ()=>{
     if (pick === outcome) {
       const win = Math.round(stake * usedOdd * 100)/100;
       balance = Math.round((balance + win)*100)/100;
-      alert(`Výhra! Vyhráváš ${win} € (stav: ${balance} €)`);
+      alert(`Good job! You won ${win} € (balance: ${balance} €)`);
     } else {
       balance = Math.round((balance - stake)*100)/100;
-      alert(`Prehra. Stratil si ${stake} € (stav: ${balance} €)`);
+      alert(`Unfortunately. You lost ${stake} € (balance: ${balance} €)`);
     }
     saveBalance(balance);
     document.getElementById('balance').textContent = balance.toFixed(2);
@@ -567,12 +613,12 @@ function simulateAndRender(home, away, speed, onMinute) {
 
     // build events
     const evs = [];
-    for (const m of sampleMinutes(g1, totalM)) evs.push([m, `⚽ Gól! ${home} skóroval.`]);
-    for (const m of sampleMinutes(g2, totalM)) evs.push([m, `⚽ Gól! ${away} skóroval.`]);
-    for (const m of sampleMinutes(yellow1, totalM)) evs.push([m, `🟨 Žltá karta pre ${home}`]);
-    for (const m of sampleMinutes(yellow2, totalM)) evs.push([m, `🟨 Žltá karta pre ${away}`]);
-    for (const m of sampleMinutes(red1, totalM)) evs.push([m, `🟥 Červená karta pre ${home}`]);
-    for (const m of sampleMinutes(red2, totalM)) evs.push([m, `🟥 Červená karta pre ${away}`]);
+    for (const m of sampleMinutes(g1, totalM)) evs.push([m, `⚽ Goal! ${home} scored.`]);
+    for (const m of sampleMinutes(g2, totalM)) evs.push([m, `⚽ Goal! ${away} scored.`]);
+    for (const m of sampleMinutes(yellow1, totalM)) evs.push([m, `🟨 Yellow card for ${home}`]);
+    for (const m of sampleMinutes(yellow2, totalM)) evs.push([m, `🟨 Yellow card for ${away}`]);
+    for (const m of sampleMinutes(red1, totalM)) evs.push([m, `🟥 Red card for ${home}`]);
+    for (const m of sampleMinutes(red2, totalM)) evs.push([m, `🟥 Red card for ${away}`]);
     evs.sort((a,b)=>a[0]-b[0]);
 
     // derived stats

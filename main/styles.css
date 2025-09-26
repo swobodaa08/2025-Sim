@@ -1,88 +1,302 @@
-body {
-  font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-  background:#f6f8fb;
-  margin:0;
-  padding:18px;
-  color:#0b1220
+/* Center only the specific muted element in the first box */
+#chooseTeamsTitle {
+  text-align: center;
 }
-
-.wrap{
-  max-width:980px;
-  margin:14px auto;
-  background:#fff;
-  border-radius:10px;
-  padding:18px;
-  box-shadow:0 6px 24px rgba(12,20,40,0.06)
-}
-
-h1{
-  margin:0 0 12px;
-  font-size:20px;
+#oddsArea {
   text-align: center;
 }
 
-.row{
-  display:flex;
-  gap:12px;
-  align-items:center
+#oddsValue1, #oddsValueX, #oddsValue2 {
+  text-align: center;
 }
 
-select,input,button{
-  font:inherit;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #e6eef6
+h3 {
+text-align: center;
+}
+/* ====== DARK MODE FUTBAL APP ====== */
+:root {
+  --bg: #0f172a;           /* hlavné pozadie */
+  --panel: #1e293b;        /* panely a boxy */
+  --panel-light: #27344b;  /* trochu svetlejší odtieň */
+  --accent: #3b82f6;       /* modrý akcent */
+  --accent-hover: #60a5fa;
+  --text: #f8fafc;         /* primárny text */
+  --text-muted: #94a3b8;   /* sekundárny text */
+  --border: #334155;       /* okraje */
+  --danger: #f87171;       /* červená na chyby */
+  --success: #4ade80;      /* zelená na výhry */
+  --warning-bg: #1f2937;   /* pozadie pre výsledky */
 }
 
-.controls{
-  display:flex;
-  gap:8px;
-  margin-top:8px;
-  flex-wrap:wrap
+body {
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  padding: 18px;
+  color: var(--text);
+  line-height: 1.5;
 }
 
-.box{
-  background:#fbfdff;
-  border:1px solid #eef6ff;
-  padding:12px;
-  border-radius:8px
+.wrap {
+  max-width: 980px;
+  margin: 14px auto;
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  transition: background 0.3s;
+  height: 1080px;
 }
 
-.result{
-  margin-top:12px;
-  padding:12px;
-  background:#fff6f0;
-  border:1px solid #fde8d0;
-  border-radius:8px
+h1 {
+  margin: 0 0 16px;
+  font-size: 26px;
+  text-align: center;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: .5px;
 }
 
-.muted{
-  color:#64748b;
-  font-size:13px
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.events{
-  max-height:240px;
-  overflow:auto;
-  border-radius:8px;
-  padding:8px;
-  background:#f8fafc;
-  border:1px solid #eef2ff
+/* Only affect the last row with playArea and resultArea */
+.row:last-of-type {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+.row:last-of-type > div {
+  width: 50% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.row:last-of-type #playArea, .row:last-of-type #resultArea {
+  height: 100%;
+  box-sizing: border-box;
+}
+.row:last-of-type #resultArea .statstable {
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.statstable{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:8px
+/* ===== Form prvky ===== */
+select, input, button {
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-light);
+  color: var(--text);
+  transition: all 0.2s ease;
 }
 
-.statstable th,.statstable td{
-  padding:6px;
-  border-bottom:1px solid #f1f5f9;
-  text-align:left
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
 }
 
-.small{
-  font-size:13px;
-  color:#334155
+button {
+  background: var(--accent);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-hover);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+#computeOdds {
+  margin: 0 auto;
+  display: block;
+}
+
+#balanceBox {
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+/* ===== Boxy ===== */
+.box {
+  background: var(--panel-light);
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 10px;
+}
+
+.box:last-of-type {
+  min-height: 360px;
+}
+
+/* ===== Výsledky ===== */
+.result {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--warning-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.result.win {
+  border-left: 4px solid var(--success);
+}
+
+.result.lose {
+  border-left: 4px solid var(--danger);
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.events {
+  max-height: 240px;
+  overflow: auto;
+  border-radius: 10px;
+  padding: 4px 6px;
+  background: var(--panel-light);
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* ===== Tabuľka štatistík ===== */
+.statstable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.statstable th, .statstable td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.statstable th {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.small {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ===== Scrollbar (moderný) ===== */
+.events::-webkit-scrollbar {
+  width: 6px;
+}
+.events::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 6px;
+}
+.events::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+
+#resultArea {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 0;
+}
+
+#resultArea > div > strong {
+  display: block;
+  text-align: center;
+}
+
+#resultArea > div > div > em {
+  display: block;
+  text-align: center;
+}
+
+#resultArea > div:nth-child(2) > table > tbody > tr > td{
+  text-align: center;
+}
+
+#resultArea > div:nth-child(2) > table > thead > tr > th{
+  text-align: center;
+}
+
+#playArea {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+#body > div > div > div.muted {
+  text-align: center;
+}
+
+#betArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#betArea label {
+  margin-bottom: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+#betArea select {
+  margin-bottom: 4px;
+  width: 140px;
+}
+
+#betArea input[type="number"] {
+  margin-bottom: 4px;
+  width: 130px;
+}
+
+#betArea button {
+  margin-top: 8px;
+  width: 160px;
+  display: block;
+}
+
+#betArea select {
+  width: 180px;
+}
+
+#oddsButtons button {
+  min-width: 100px;
+  padding: 10px 14px;
+  font-weight: 500;
+  background-color: #3b82f6;
+}
+#oddsButtons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: grey;
 }
