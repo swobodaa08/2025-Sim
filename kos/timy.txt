@@ -1,0 +1,189 @@
+Team: Dolny Kubin
+elo: 966
+goals_scored: 208
+goals_conceded: 12
+yellow: 45
+red: 10
+win: 10
+loss: 3
+draw: 13
+
+Team: Banska Bystrica B
+elo: 925
+goals_scored: 71
+goals_conceded: 81
+yellow: 54
+red: 2
+win: 9
+loss: 3
+draw: 14
+
+Team: Bytča
+elo: 910
+goals_scored: 201
+goals_conceded: 39
+yellow: 64
+red: 7
+win: 9
+loss: 3
+draw: 15
+
+Team: Kysuca
+elo: 889
+goals_scored: 66
+goals_conceded: 81
+yellow: 51
+red: 2
+win: 7
+loss: 3
+draw: 14
+
+Team: Banova
+elo: 775
+goals_scored: 73
+goals_conceded: 82
+yellow: 65
+red: 15
+win: 9
+loss: 3
+draw: 17
+
+Team: Nededza
+elo: 732
+goals_scored: 69
+goals_conceded: 81
+yellow: 60
+red: 11
+win: 8
+loss: 3
+draw: 14
+
+Team: Krasno
+elo: 710
+goals_scored: 89
+goals_conceded: 82
+yellow: 60
+red: 8
+win: 11
+loss: 3
+draw: 15
+
+Team: Martin B
+elo: 700
+goals_scored: 69
+goals_conceded: 82
+yellow: 60
+red: 5
+win: 8
+loss: 3
+draw: 16
+
+Team: Banska Stiavnica
+elo: 675
+goals_scored: 70
+goals_conceded: 81
+yellow: 56
+red: 2
+win: 9
+loss: 3
+draw: 13
+
+Team: Rimavska Sobota
+elo: 650
+goals_scored: 69
+goals_conceded: 81
+yellow: 51
+red: 18
+win: 8
+loss: 3
+draw: 13
+
+Team: Oravska Jasenica
+elo: 599
+goals_scored: 71
+goals_conceded: 87
+yellow: 73
+red: 8
+win: 10
+loss: 5
+draw: 18
+
+Team: Brezno
+elo: 556
+goals_scored: 72
+goals_conceded: 87
+yellow: 32
+red: 17
+win: 11
+loss: 5
+draw: 17
+
+Team: Detva
+elo: 511
+goals_scored: 68
+goals_conceded: 82
+yellow: 67
+red: 13
+win: 8
+loss: 3
+draw: 17
+
+Team: Vrutky
+elo: 489
+goals_scored: 66
+goals_conceded: 81
+yellow: 51
+red: 20
+win: 7
+loss: 3
+draw: 13
+
+Team: Horky
+elo: 470
+goals_scored: 61
+goals_conceded: 103
+yellow: 44
+red: 1
+win: 14
+loss: 9
+draw: 15
+
+Team: Kovacova
+elo: 394
+goals_scored: 73
+goals_conceded: 87
+yellow: 58
+red: 12
+win: 8
+loss: 5
+draw: 13
+
+Team: Cadca
+elo: 241
+goals_scored: 66
+goals_conceded: 83
+yellow: 60
+red: 8
+win: 7
+loss: 4
+draw: 14
+
+Team: Nova Bana
+elo: 100
+goals_scored: 69
+goals_conceded: 158
+yellow: 65
+red: 34
+win: 7
+loss: 11
+draw: 13
+
+Team: ŠK Sásová
+elo: 60
+goals_scored: 13
+goals_conceded: 208
+yellow: 35
+red: 10
+win: 7
+loss: 13
+draw: 13
