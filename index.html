@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Simulátor + kurzovač (browser)</title>
+<style>
+  body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:#f6f8fb; margin:0; padding:18px; color:#0b1220}
+  .wrap{max-width:980px;margin:14px auto;background:#fff;border-radius:10px;padding:18px;box-shadow:0 6px 24px rgba(12,20,40,0.06)}
+  h1{margin:0 0 12px;font-size:20px}
+  .row{display:flex;gap:12px;align-items:center}
+  select,input,textarea,button{font:inherit;padding:8px;border-radius:8px;border:1px solid #e6eef6}
+  textarea{min-height:120px;width:100%;resize:vertical}
+  .controls{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .box{background:#fbfdff;border:1px solid #eef6ff;padding:12px;border-radius:8px}
+  .result{margin-top:12px;padding:12px;background:#fff6f0;border:1px solid #fde8d0;border-radius:8px}
+  .muted{color:#64748b;font-size:13px}
+  .events{max-height:240px;overflow:auto;border-radius:8px;padding:8px;background:#f8fafc;border:1px solid #eef2ff}
+  .statstable{width:100%;border-collapse:collapse;margin-top:8px}
+  .statstable th,.statstable td{padding:6px;border-bottom:1px solid #f1f5f9;text-align:left}
+  .small{font-size:13px;color:#334155}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Simulátor zápasu + výpočet kurzov (JS)</h1>
+
+    <div class="box">
+      <div class="muted">1) Timy — vlož text s tímami vo formáte (príklad nižšie) alebo použij predvolený:</div>
+      <textarea id="teamsText" placeholder="Team: Spartak
+elo: 1200
+win: 0
+draw: 0
+loss: 0
+goals_scored: 0
+goals_conceded: 0
+yellow: 0
+red: 5
+
+Team: Slovan
+elo: 1350
+..."></textarea>
+      <div class="controls">
+        <button id="loadDefault">Načítať predvolené tímy</button>
+        <button id="parseTeams">Načítať zo vstupu</button>
+        <button id="exportTeams">Exportovať JSON</button>
+        <button id="importTeams">Importovať JSON (vložiť)</button>
+        <div class="muted" style="margin-left:auto">Štát: localStorage</div>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="box">
+      <div class="muted">2) Vyber tímy a nastav animáciu</div>
+      <div class="row" style="margin-top:8px">
+        <div style="flex:1">
+          <label class="small">Domáci:</label><br>
+          <select id="homeSelect"></select>
+        </div>
+        <div style="flex:1">
+          <label class="small">Hostia:</label><br>
+          <select id="awaySelect"></select>
+        </div>
+        <div style="width:170px">
+          <label class="small">Rýchlosť simulácie:</label><br>
+          <select id="speed">
+            <option value="0">Okamžite</option>
+            <option value="150">Slow (150ms / minuta)</option>
+            <option value="60">Medium (60ms / minuta)</option>
+            <option value="20">Fast (20ms / minuta)</option>
+          </select>
+        </div>
+        <div style="width:130px">
+          <label class="small">Počet kôl:</label><br>
+          <input id="rounds" type="number" min="1" max="20" value="1" />
+        </div>
+      </div>
+
+      <div class="controls" style="margin-top:10px">
+        <button id="computeOdds">Vypočítať kurzy</button>
+        <div class="muted" id="balanceBox" style="margin-left:auto">Saldo: <strong id="balance">10000</strong> €</div>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="box">
+      <div id="oddsArea" class="small muted">Kurzy: —</div>
+      <div style="margin-top:8px" id="betArea" hidden>
+        <label class="small">Tvoj tip:</label><br>
+        <select id="pick"><option value="1">1 (domáci)</option><option value="X">X (remíza)</option><option value="2">2 (hostia)</option></select>
+        <input id="stake" type="number" step="0.1" min="0.5" placeholder="suma €" style="width:130px;margin-left:6px" />
+        <button id="placeBet">Vsadiť a simulovať</button>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="box">
+      <h3 style="margin:0 0 8px 0">Simulácia (minúta po minúte)</h3>
+      <div class="row">
+        <div style="flex:1">
+          <div class="muted">Priebeh zápasu</div>
+          <div id="playArea" class="events"></div>
+        </div>
+        <div style="width:320px">
+          <div class="muted">Výsledok a štatistiky</div>
+          <div id="resultArea" class="result small">Tu sa zobrazí výsledok</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="box">
+      <div class="muted">Poznámky</div>
+      <ul>
+        <li class="small">Formát tímov: bloky oddelené prázdnym riadkom. Každý blok musí obsahovať riadok <code>Team: Názov</code> a numerické polia (elo, win, draw...).</li>
+        <li class="small">Štatistiky sa ukladajú do <code>localStorage</code>. Môžeš exportovať/importovať JSON.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+/* ---------- Utility & port of Python logic into JS ---------- */
+
+/* Poisson sampler (Knuth) */
+function samplePoisson(lambda) {
+  if (lambda <= 0) return 0;
+  // For larger lambda, use approximation (normal) for performance
+  if (lambda > 50) {
+    // approximate by normal with mean=lambda and var=lambda
+    const std = Math.sqrt(lambda);
+    let x = Math.round(randomNormal(lambda, std));
+    return Math.max(0, x);
+  }
+  let L = Math.exp(-lambda);
+  let k = 0;
+  let p = 1;
+  while (p > L) {
+    k++;
+    p *= Math.random();
+    // safety
+    if (k > 1000) break;
+  }
+  return Math.max(0, k - 1);
+}
+function randomNormal(mu=0, sigma=1) {
+  // Box-Muller
+  let u = 0, v = 0;
+  while(u === 0) u = Math.random();
+  while(v === 0) v = Math.random();
+  return mu + sigma * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+/* clamp helper */
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+/* parse teams from input text (Python-like parser) */
+function parseTeams(text) {
+  const blocks = text.trim().split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+  const teams = {};
+  for (const blk of blocks) {
+    const lines = blk.split(/\n/).map(l=>l.trim()).filter(Boolean);
+    let name = null;
+    const data = {};
+    for (const line of lines) {
+      const idx = line.indexOf(':');
+      if (idx === -1) continue;
+      const key = line.slice(0, idx).trim();
+      const val = line.slice(idx+1).trim();
+      if (key.toLowerCase() === 'team') { name = val; }
+      else {
+        // parse int fallback to 0
+        const n = parseInt(val, 10);
+        data[key] = isNaN(n) ? 0 : n;
+      }
+    }
+    if (name) {
+      teams[name] = data;
+    }
+  }
+  return teams;
+}
+
+/* serialize teams to text like original */
+function teamsToText(teams) {
+  return Object.entries(teams).map(([name, data]) => {
+    let out = `Team: ${name}\n`;
+    for (const k in data) out += `${k}: ${data[k]}\n`;
+    return out;
+  }).join('\n');
+}
+
+/* ELO-based odds calculation (port of vypocitaj_kurzy) */
+function calcOdds(st1, st2) {
+  const elo1 = (st1.elo !== undefined) ? st1.elo : 1000;
+  const elo2 = (st2.elo !== undefined) ? st2.elo : 1000;
+  const EA = 1 / (1 + Math.pow(10, (elo2 - elo1)/400));
+  const EB = 1 / (1 + Math.pow(10, (elo1 - elo2)/400));
+  let k1 = clamp(round2(1 / EA), 0, 150);
+  let k2 = clamp(round2(1 / EB), 0, 150);
+  const kX = round2((k1 + k2) / 2);
+  return { home: k1, draw: kX, away: k2 };
+}
+function round2(n){ return Math.round(n*100)/100; }
+
+/* expected goals heuristic (port expecting log base 1.25) */
+function expectedGoals(elo1, elo2) {
+  const max_goly = 20;
+  const min_goly = 0.2;
+  const ratio = (elo1 + 1) / (elo2 + 1);
+  // log base 1.25 -> Math.log(ratio)/Math.log(1.25)
+  let g1 = Math.log(Math.max(1e-8, ratio)) / Math.log(1.25);
+  let g2 = Math.log(Math.max(1e-8, 1/ratio)) / Math.log(1.25);
+  g1 = clamp(g1, min_goly, max_goly);
+  g2 = clamp(g2, min_goly, max_goly);
+  return [g1, g2];
+}
+
+/* minute sampling without replacement */
+function sampleMinutes(count, totalMinutes) {
+  const pool = Array.from({length: totalMinutes}, (_, i) => i+1);
+  const out = [];
+  count = Math.max(0, Math.min(count, pool.length));
+  for (let i=0;i<count;i++){
+    const idx = Math.floor(Math.random()*pool.length);
+    out.push(pool.splice(idx,1)[0]);
+  }
+  out.sort((a,b)=>a-b);
+  return out;
+}
+
+/* ---------- App state & helpers ---------- */
+let TEAMS = {};
+const LS_KEY = 'sim_teams_v1';
+const LS_BAL = 'sim_balance_v1';
+
+function saveTeamsToStorage(){ localStorage.setItem(LS_KEY, JSON.stringify(TEAMS)); }
+function loadTeamsFromStorage(){ 
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) TEAMS = JSON.parse(raw);
+  } catch(e){}
+}
+function saveBalance(b){ localStorage.setItem(LS_BAL, String(b)); }
+function loadBalance(){ const b = parseFloat(localStorage.getItem(LS_BAL)); return isNaN(b)?10000:b; }
+
+function populateSelects(){
+  const home = document.getElementById('homeSelect');
+  const away = document.getElementById('awaySelect');
+  home.innerHTML=''; away.innerHTML='';
+  Object.keys(TEAMS).forEach(name=>{
+    const o1 = document.createElement('option'); o1.value = name; o1.textContent = name;
+    const o2 = document.createElement('option'); o2.value = name; o2.textContent = name;
+    home.appendChild(o1); away.appendChild(o2);
+  });
+}
+
+/* ---------- Default teams sample ---------- */
+const defaultText = `
+Team: Dolny Kubin
+elo: 966
+goals_scored: 208
+goals_conceded: 12
+yellow: 45
+red: 10
+win: 10
+loss: 3
+draw: 13
+
+Team: Banska Bystrica B
+elo: 925
+goals_scored: 71
+goals_conceded: 81
+yellow: 54
+red: 2
+win: 9
+loss: 3
+draw: 14
+
+Team: Bytča
+elo: 910
+goals_scored: 201
+goals_conceded: 39
+yellow: 64
+red: 7
+win: 9
+loss: 3
+draw: 15
+
+Team: Kysuca
+elo: 889
+goals_scored: 66
+goals_conceded: 81
+yellow: 51
+red: 2
+win: 7
+loss: 3
+draw: 14
+
+Team: Banova
+elo: 775
+goals_scored: 73
+goals_conceded: 82
+yellow: 65
+red: 15
+win: 9
+loss: 3
+draw: 17
+
+Team: Nededza
+elo: 732
+goals_scored: 69
+goals_conceded: 81
+yellow: 60
+red: 11
+win: 8
+loss: 3
+draw: 14
+
+Team: Krasno
+elo: 710
+goals_scored: 89
+goals_conceded: 82
+yellow: 60
+red: 8
+win: 11
+loss: 3
+draw: 15
+
+Team: Martin B
+elo: 700
+goals_scored: 69
+goals_conceded: 82
+yellow: 60
+red: 5
+win: 8
+loss: 3
+draw: 16
+
+Team: Banska Stiavnica
+elo: 675
+goals_scored: 70
+goals_conceded: 81
+yellow: 56
+red: 2
+win: 9
+loss: 3
+draw: 13
+
+Team: Rimavska Sobota
+elo: 650
+goals_scored: 69
+goals_conceded: 81
+yellow: 51
+red: 18
+win: 8
+loss: 3
+draw: 13
+
+Team: Oravska Jasenica
+elo: 599
+goals_scored: 71
+goals_conceded: 87
+yellow: 73
+red: 8
+win: 10
+loss: 5
+draw: 18
+
+Team: Brezno
+elo: 556
+goals_scored: 72
+goals_conceded: 87
+yellow: 32
+red: 17
+win: 11
+loss: 5
+draw: 17
+
+Team: Detva
+elo: 511
+goals_scored: 68
+goals_conceded: 82
+yellow: 67
+red: 13
+win: 8
+loss: 3
+draw: 17
+
+Team: Vrutky
+elo: 489
+goals_scored: 66
+goals_conceded: 81
+yellow: 51
+red: 20
+win: 7
+loss: 3
+draw: 13
+
+Team: Horky
+elo: 470
+goals_scored: 61
+goals_conceded: 103
+yellow: 44
+red: 1
+win: 14
+loss: 9
+draw: 15
+
+Team: Kovacova
+elo: 394
+goals_scored: 73
+goals_conceded: 87
+yellow: 58
+red: 12
+win: 8
+loss: 5
+draw: 13
+
+Team: Cadca
+elo: 241
+goals_scored: 66
+goals_conceded: 83
+yellow: 60
+red: 8
+win: 7
+loss: 4
+draw: 14
+
+Team: Nova Bana
+elo: 100
+goals_scored: 69
+goals_conceded: 158
+yellow: 65
+red: 34
+win: 7
+loss: 11
+draw: 13
+
+Team: ŠK Sásová
+elo: 60
+goals_scored: 13
+goals_conceded: 208
+yellow: 35
+red: 10
+win: 7
+loss: 13
+draw: 13
+`;
+
+/* ---------- Main simulation logic (port of simuluj_zapas) ---------- */
+function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
+  const st1 = TEAMS[homeName];
+  const st2 = TEAMS[awayName];
+  if (!st1 || !st2) throw new Error('Tímy neexistujú');
+
+  // expected goals
+  let [exp_g1, exp_g2] = expectedGoals(st1.elo||1000, st2.elo||1000);
+
+  // small home advantage +10%
+  exp_g1 *= 1.1;
+
+  // sample goals by Poisson
+  const g1 = samplePoisson(exp_g1);
+  const g2 = samplePoisson(exp_g2);
+
+  // cards
+  const yellow1 = randInt(0,4);
+  const yellow2 = randInt(0,5);
+  const red1 = (Math.random() < ((st1.red||0)/100))?1:0;
+  const red2 = (Math.random() < ((st2.red||0)/100))?1:0;
+
+  const nadstaveny = randInt(1,8);
+  const totalM = 90 + nadstaveny;
+
+  function buildEvents() {
+    const events = [];
+    for (const m of sampleMinutes(g1, totalM)) events.push([m, `⚽ Gól! ${homeName} skóroval.`]);
+    for (const m of sampleMinutes(g2, totalM)) events.push([m, `⚽ Gól! ${awayName} skóroval.`]);
+    for (const m of sampleMinutes(yellow1, totalM)) events.push([m, `🟨 Žltá karta pre ${homeName}`]);
+    for (const m of sampleMinutes(yellow2, totalM)) events.push([m, `🟨 Žltá karta pre ${awayName}`]);
+    for (const m of sampleMinutes(red1, totalM)) events.push([m, `🟥 Červená karta pre ${homeName}`]);
+    for (const m of sampleMinutes(red2, totalM)) events.push([m, `🟥 Červená karta pre ${awayName}`]);
+    events.sort((a,b)=> a[0]-b[0]);
+    return events;
+  }
+  const events = buildEvents();
+
+  // Stats derivation similar to python
+  const strely1 = randInt(4,8) + g1*randInt(2,4);
+  const strely2 = randInt(4,8) + g2*randInt(2,4);
+  const naBranu1 = randInt(Math.max(g1,0), g1 + randInt(1,6));
+  const naBranu2 = randInt(Math.max(g2,0), g2 + randInt(1,4));
+  const drzanie1 = (st1.elo > st2.elo) ? randInt(51,75) : randInt(25,49);
+  const drzanie2 = 100 - drzanie1;
+  const rohy1 = randInt(1,5) + g1;
+  const rohy2 = randInt(1,5) + g2;
+  const offs1 = randInt(0,3);
+  const offs2 = randInt(0,3);
+  const fauly1 = randInt(5,12) + yellow1;
+  const fauly2 = randInt(7,14) + yellow2;
+
+  // We will animate minute-by-minute if speed>0, otherwise render instantly
+  let minute = 0;
+  let playInterval = null;
+
+  function renderMinute(m) {
+    if (onMinute) onMinute(m, events.filter(e=>e[0]===m).map(e=>e[1]));
+  }
+
+  if (speed > 0) {
+    return new Promise(resolve=>{
+      playInterval = setInterval(()=>{
+        minute++;
+        renderMinute(minute);
+        if (minute >= totalM) {
+          clearInterval(playInterval);
+          finalize();
+        }
+      }, speed);
+      // safety: if speed small 0 might be immediate
+    });
+  } else {
+    // instant
+    for (let m=1;m<=totalM;m++) renderMinute(m);
+    return Promise.resolve(finalize());
+  }
+
+  function finalize() {
+    // update stats in TEAMS
+    if (!TEAMS[homeName].win) { // ensure keys exist
+      TEAMS[homeName].win = TEAMS[homeName].win || 0;
+      TEAMS[homeName].draw = TEAMS[homeName].draw || 0;
+      TEAMS[homeName].loss = TEAMS[homeName].loss || 0;
+    }
+    if (!TEAMS[awayName].win) {
+      TEAMS[awayName].win = TEAMS[awayName].win || 0;
+      TEAMS[awayName].draw = TEAMS[awayName].draw || 0;
+      TEAMS[awayName].loss = TEAMS[awayName].loss || 0;
+    }
+
+    if (g1 > g2) {
+      TEAMS[homeName].win += 1;
+      TEAMS[awayName].loss += 1;
+    } else if (g2 > g1) {
+      TEAMS[awayName].win += 1;
+      TEAMS[homeName].loss += 1;
+    } else {
+      TEAMS[homeName].draw += 1;
+      TEAMS[awayName].draw += 1;
+    }
+
+    TEAMS[homeName].goals_scored = (TEAMS[homeName].goals_scored||0) + g1;
+    TEAMS[homeName].goals_conceded = (TEAMS[homeName].goals_conceded||0) + g2;
+    TEAMS[homeName].yellow = (TEAMS[homeName].yellow||0) + yellow1;
+    TEAMS[homeName].red = (TEAMS[homeName].red||0) + red1;
+
+    TEAMS[awayName].goals_scored = (TEAMS[awayName].goals_scored||0) + g2;
+    TEAMS[awayName].goals_conceded = (TEAMS[awayName].goals_conceded||0) + g1;
+    TEAMS[awayName].yellow = (TEAMS[awayName].yellow||0) + yellow2;
+    TEAMS[awayName].red = (TEAMS[awayName].red||0) + red2;
+
+    // prepare result object
+    const vys = {
+      vysledok: `${homeName} ${g1} - ${g2} ${awayName}`,
+      skutocny_tip: g1>g2 ? '1' : g2>g1 ? '2' : 'X',
+      statistiky: {
+        [homeName]: {
+          goly: g1, strely: strely1, "strely na bránu": naBranu1, "držanie lopty": drzanie1,
+          rohy: rohy1, offsides: offs1, fauly: fauly1, žlté: yellow1, červené: red1
+        },
+        [awayName]: {
+          goly: g2, strely: strely2, "strely na bránu": naBranu2, "držanie lopty": drzanie2,
+          rohy: rohy2, offsides: offs2, fauly: fauly2, žlté: yellow2, červené: red2
+        }
+      },
+      events,
+      nadstaveny: nadstaveny
+    };
+    saveTeamsToStorage();
+    return vys;
+  }
+}
+
+/* helpers */
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+/* ---------- UI wiring ---------- */
+
+document.getElementById('loadDefault').addEventListener('click', ()=>{
+  document.getElementById('teamsText').value = defaultText;
+  document.getElementById('parseTeams').click();
+});
+
+document.getElementById('parseTeams').addEventListener('click', ()=>{
+  const txt = document.getElementById('teamsText').value.trim();
+  if (!txt) return alert('Vlož text tímov alebo načítaj predvolené.');
+  TEAMS = parseTeams(txt);
+  saveTeamsToStorage();
+  populateSelects();
+  alert('Timy načítané: ' + Object.keys(TEAMS).length);
+  document.getElementById('betArea').hidden = Object.keys(TEAMS).length < 2;
+});
+
+document.getElementById('exportTeams').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(TEAMS,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'teams.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importTeams').addEventListener('click', ()=>{
+  const s = prompt('Skopíruj JSON tímov sem:');
+  if (!s) return;
+  try {
+    TEAMS = JSON.parse(s);
+    saveTeamsToStorage();
+    populateSelects();
+    alert('Import hotový');
+  } catch(e){ alert('Neplatný JSON'); }
+});
+
+document.getElementById('computeOdds').addEventListener('click', ()=>{
+  const h = document.getElementById('homeSelect').value;
+  const a = document.getElementById('awaySelect').value;
+  if (!h || !a || h===a) return alert('Vyber dva rôzne tímy.');
+  const odds = calcOdds(TEAMS[h], TEAMS[a]);
+  document.getElementById('oddsArea').innerHTML = `<strong>Kurzy</strong>: ${h} = ${odds.home}, X = ${odds.draw}, ${a} = ${odds.away}`;
+  document.getElementById('betArea').hidden = false;
+  // store last odds for bet
+  window.__lastOdds = odds;
+  window.__lastTeams = {home:h, away:a};
+});
+
+document.getElementById('placeBet').addEventListener('click', async ()=>{
+  const pick = document.getElementById('pick').value;
+  let stake = parseFloat(document.getElementById('stake').value);
+  if (isNaN(stake) || stake < 0.5) return alert('Zadaj vklad minimálne 0.5 €');
+  if (stake > 10000) return alert('Maximálny vklad 10000 €');
+  let balance = loadBalance();
+  if (stake > balance) return alert('Nedostatok prostriedkov.');
+
+  // lock UI
+  document.getElementById('placeBet').disabled = true;
+  document.getElementById('computeOdds').disabled = true;
+  document.getElementById('playArea').innerHTML = 'Simulujem...';
+  document.getElementById('resultArea').textContent = 'Simulujem...';
+
+  const speed = parseInt(document.getElementById('speed').value, 10);
+  const rounds = Math.max(1, Math.min(20, parseInt(document.getElementById('rounds').value,10) || 1));
+
+  // run rounds sequentially
+  for (let r=0;r<rounds;r++){
+    // simulate one match
+    const home = window.__lastTeams.home;
+    const away = window.__lastTeams.away;
+    const playArea = document.getElementById('playArea');
+    playArea.innerHTML = '';
+    let currentEvents = [];
+    // callback for minutes
+    const onMinute = (m, evs) => {
+      const line = document.createElement('div');
+      line.textContent = (m>90 ? `90+${m-90}` : `${m}. min`) + ' — ' + (evs.length ? evs.join(' | ') : '');
+      playArea.appendChild(line);
+      playArea.scrollTop = playArea.scrollHeight;
+    };
+
+    const res = await simulateAndRender(home, away, speed, onMinute);
+    // res is result object (or finalize if animated)
+    // Show result
+    document.getElementById('resultArea').innerHTML = `
+      <div><strong>${res.vysledok}</strong></div>
+      <div style="margin-top:6px">
+        <div><em>Štatistiky</em></div>
+        <table class="statstable">
+          <thead><tr><th>Tím</th><th>Góly</th><th>Strely</th><th>Na bránu</th><th>Žlté karty</th><th>Červené karty</th><th>Držanie</th></tr></thead>
+          <tbody>
+            <tr><td>${Object.keys(res.statistiky)[0]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]].goly}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]].strely}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["strely na bránu"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[0]]["držanie lopty"]}%</td></tr>
+            <tr><td>${Object.keys(res.statistiky)[1]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]].goly}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]].strely}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["strely na bránu"]}</td><td>${res.statistiky[Object.keys(res.statistiky)[1]]["držanie lopty"]}%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // compute payout
+    const odds = window.__lastOdds;
+    const outcome = res.skutocny_tip;
+    const usedOdd = outcome === '1' ? odds.home : outcome === '2' ? odds.away : odds.draw;
+    if (pick === outcome) {
+      const win = Math.round(stake * usedOdd * 100)/100;
+      balance = Math.round((balance + win)*100)/100;
+      alert(`Výhra! Vyhráváš ${win} € (stav: ${balance} €)`);
+    } else {
+      balance = Math.round((balance - stake)*100)/100;
+      alert(`Prehra. Stratil si ${stake} € (stav: ${balance} €)`);
+    }
+    saveBalance(balance);
+    document.getElementById('balance').textContent = balance.toFixed(2);
+  }
+
+  document.getElementById('placeBet').disabled = false;
+  document.getElementById('computeOdds').disabled = false;
+});
+
+/* wrapper to use simulateMatch and handle animation result (simulateMatch returns Promise) */
+function simulateAndRender(home, away, speed, onMinute) {
+  return new Promise(resolve=>{
+    // our simulateMatch either resolves instantly (speed==0) with vys or for animated it resolves undefined; adjust implementation:
+    // modify simulateMatch to call onMinute and then return result synchronously for speed==0 or asynchronously via finalize for animated.
+    // In our current simulateMatch implementation, if speed>0 it never resolves a value — changed behavior: we will implement simulateAndRender custom here.
+
+    // to keep code simple: run simulation logic here (separately from simulateMatch)
+    const st1 = TEAMS[home], st2 = TEAMS[away];
+    let [exp_g1, exp_g2] = expectedGoals(st1.elo||1000, st2.elo||1000);
+    exp_g1 *= 1.1;
+    const g1 = samplePoisson(exp_g1);
+    const g2 = samplePoisson(exp_g2);
+    const yellow1 = randInt(0,4);
+    const yellow2 = randInt(0,5);
+    const red1 = (Math.random() < ((st1.red||0)/100))?1:0;
+    const red2 = (Math.random() < ((st2.red||0)/100))?1:0;
+    const nadst = randInt(1,8);
+    const totalM = 90 + nadst;
+
+    // build events
+    const evs = [];
+    for (const m of sampleMinutes(g1, totalM)) evs.push([m, `⚽ Gól! ${home} skóroval.`]);
+    for (const m of sampleMinutes(g2, totalM)) evs.push([m, `⚽ Gól! ${away} skóroval.`]);
+    for (const m of sampleMinutes(yellow1, totalM)) evs.push([m, `🟨 Žltá karta pre ${home}`]);
+    for (const m of sampleMinutes(yellow2, totalM)) evs.push([m, `🟨 Žltá karta pre ${away}`]);
+    for (const m of sampleMinutes(red1, totalM)) evs.push([m, `🟥 Červená karta pre ${home}`]);
+    for (const m of sampleMinutes(red2, totalM)) evs.push([m, `🟥 Červená karta pre ${away}`]);
+    evs.sort((a,b)=>a[0]-b[0]);
+
+    // derived stats
+    const strely1 = randInt(4,8) + g1*randInt(2,4);
+    const strely2 = randInt(4,8) + g2*randInt(2,4);
+    const naBrana1 = randInt(Math.max(g1,0), g1 + randInt(1,6));
+    const naBrana2 = randInt(Math.max(g2,0), g2 + randInt(1,4));
+    const drz1 = (st1.elo > st2.elo) ? randInt(51,75) : randInt(25,49);
+    const drz2 = 100 - drz1;
+    const rohy1 = randInt(1,5) + g1;
+    const rohy2 = randInt(1,5) + g2;
+    const offs1 = randInt(0,3);
+    const offs2 = randInt(0,3);
+    const fauly1 = randInt(5,12) + yellow1;
+    const fauly2 = randInt(7,14) + yellow2;
+
+    // animate or instant
+    const playArea = document.getElementById('playArea');
+    playArea.innerHTML = '';
+    if (speed > 0) {
+      let m = 0;
+      const t = setInterval(()=>{
+        m++;
+        const line = document.createElement('div');
+        line.textContent = (m>90 ? `90+${m-90}` : `${m}. min`) + ' — ' + (evs.filter(e=>e[0]===m).map(e=>e[1]).join(' | ') || '');
+        playArea.appendChild(line);
+        playArea.scrollTop = playArea.scrollHeight;
+        if (m >= totalM) {
+          clearInterval(t);
+          finalize();
+        }
+      }, speed);
+    } else {
+      for (let m=1;m<=totalM;m++){
+        const line = document.createElement('div');
+        line.textContent = (m>90 ? `90+${m-90}` : `${m}. min`) + ' — ' + (evs.filter(e=>e[0]===m).map(e=>e[1]).join(' | ') || '');
+        playArea.appendChild(line);
+      }
+      finalize();
+    }
+
+    function finalize(){
+      // update TEAMS
+      st1.win = st1.win || 0; st1.draw = st1.draw || 0; st1.loss = st1.loss || 0;
+      st2.win = st2.win || 0; st2.draw = st2.draw || 0; st2.loss = st2.loss || 0;
+      if (g1 > g2) { st1.win++; st2.loss++; }
+      else if (g2 > g1) { st2.win++; st1.loss++; }
+      else { st1.draw++; st2.draw++; }
+      st1.goals_scored = (st1.goals_scored||0) + g1;
+      st1.goals_conceded = (st1.goals_conceded||0) + g2;
+      st1.yellow = (st1.yellow||0) + yellow1;
+      st1.red = (st1.red||0) + red1;
+      st2.goals_scored = (st2.goals_scored||0) + g2;
+      st2.goals_conceded = (st2.goals_conceded||0) + g1;
+      st2.yellow = (st2.yellow||0) + yellow2;
+      st2.red = (st2.red||0) + red2;
+      saveTeamsToStorage();
+
+      const res = {
+        vysledok: `${home} ${g1} - ${g2} ${away}`,
+        skutocny_tip: g1>g2 ? '1' : g2>g1 ? '2' : 'X',
+        statistiky: {
+          [home]: { goly:g1, strely:strely1, "strely na bránu":naBrana1, "držanie lopty":drz1, rohy:rohy1, offsides:offs1, fauly:fauly1, žlté:yellow1, červené:red1 },
+          [away]: { goly:g2, strely:strely2, "strely na bránu":naBrana2, "držanie lopty":drz2, rohy:rohy2, offsides:offs2, fauly:fauly2, žlté:yellow2, červené:red2 }
+        },
+        events: evs,
+        nadstaveny: nadst
+      };
+      resolve(res);
+    }
+  });
+}
+
+/* ---------- Init ---------- */
+(function init(){
+  loadTeamsFromStorage();
+  if (!Object.keys(TEAMS).length) {
+    document.getElementById('teamsText').value = defaultText;
+    TEAMS = parseTeams(defaultText);
+    saveTeamsToStorage();
+  } else {
+    document.getElementById('teamsText').value = teamsToText(TEAMS);
+  }
+  populateSelects();
+  const bal = loadBalance();
+  document.getElementById('balance').textContent = bal.toFixed(2);
+  document.getElementById('betArea').hidden = Object.keys(TEAMS).length < 2;
+})();
+</script>
+</body>
+</html>
