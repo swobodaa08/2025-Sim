@@ -85,8 +85,9 @@ function calcOdds(st1, st2) {
   const EB = 1 / (1 + Math.pow(10, (elo1 - elo2)/400));
   let k1 = clamp(round2(1 / EA), 1.01, 150);
   let k2 = clamp(round2(1 / EB), 1.01, 150);
-  // Home advantage: lower home odds, increase away odds
-  const HOME_ADV_PERC = 0.12; // 12% advantage for home
+  // Home advantage: only if home team is not much weaker
+  let HOME_ADV_PERC = 0.12;
+  if (elo1 < elo2 * 0.5) HOME_ADV_PERC = 0; // no advantage for very weak home team
   k1 = round2(k1 * (1 - HOME_ADV_PERC));
   k2 = round2(k2 * (1 + HOME_ADV_PERC));
   // Ensure odds cannot go below 1.00
@@ -803,8 +804,8 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
     }
   })();
 
-  const red1 = (Math.random() < ((st1.red||0)/100))?1:0;
-  const red2 = (Math.random() < ((st2.red||0)/100))?1:0;
+  const red1 = (Math.random() < 0.01) ? 1 : 0; // domáci
+  const red2 = (Math.random() < 0.02) ? 1 : 0; // hostia
 
   const nadstaveny = randInt(1,8);
   const totalM = 90 + nadstaveny;
@@ -1025,7 +1026,7 @@ document.getElementById('placeBet').addEventListener('click', async () => {
     const outcome = res.skutocny_tip;
     const usedOdd = outcome === '1' ? odds.home : outcome === '2' ? odds.away : odds.draw;
     if (pick === outcome) {
-      const win = Math.round(stake * usedOdd * 100)/100;
+      const win = Math.round(stake * (usedOdd - 1) * 100)/100;
       balance = Math.round((balance + win)*100)/100;
       alert(`Good job! You won ${win} € (balance: ${balance} €)`);
     } else {
@@ -1055,8 +1056,8 @@ function simulateAndRender(home, away, speed, onMinute) {
     const g2 = samplePoisson(exp_g2);
     const yellow1 = randInt(0,4);
     const yellow2 = randInt(0,5);
-    const red1 = (Math.random() < ((st1.red||0)/100))?1:0;
-    const red2 = (Math.random() < ((st2.red||0)/100))?1:0;
+    const red1 = (Math.random() < 0.01) ? 1 : 0;
+    const red2 = (Math.random() < 0.02) ? 1 : 0;
     const nadst = randInt(1,8);
     const totalM = 90 + nadst;
 
