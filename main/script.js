@@ -144,195 +144,165 @@ function populateSelects(){
 
 /* ---------- Default teams sample ---------- */
 const defaultText = `
-Team: Dolny Kubin
-elo: 966
-goals_scored: 208
-goals_conceded: 12
-yellow: 45
-red: 10
-win: 10
-loss: 3
-draw: 13
-
-Team: Banska Bystrica B
-elo: 925
-goals_scored: 71
-goals_conceded: 81
-yellow: 54
-red: 2
-win: 9
-loss: 3
-draw: 14
-
-Team: Bytča
-elo: 910
-goals_scored: 201
-goals_conceded: 39
-yellow: 64
-red: 7
-win: 9
-loss: 3
-draw: 15
-
-Team: Kysuca
-elo: 889
-goals_scored: 66
-goals_conceded: 81
-yellow: 51
-red: 2
-win: 7
-loss: 3
-draw: 14
-
-Team: Banova
-elo: 775
-goals_scored: 73
-goals_conceded: 82
-yellow: 65
-red: 15
-win: 9
-loss: 3
-draw: 17
-
-Team: Nededza
-elo: 732
-goals_scored: 69
-goals_conceded: 81
-yellow: 60
-red: 11
-win: 8
-loss: 3
-draw: 14
-
-Team: Krasno
-elo: 710
-goals_scored: 89
-goals_conceded: 82
-yellow: 60
-red: 8
-win: 11
-loss: 3
-draw: 15
-
-Team: Martin B
-elo: 700
-goals_scored: 69
-goals_conceded: 82
-yellow: 60
-red: 5
-win: 8
-loss: 3
-draw: 16
-
-Team: Banska Stiavnica
-elo: 675
-goals_scored: 70
-goals_conceded: 81
-yellow: 56
-red: 2
-win: 9
-loss: 3
-draw: 13
-
-Team: Rimavska Sobota
-elo: 650
-goals_scored: 69
-goals_conceded: 81
-yellow: 51
-red: 18
-win: 8
-loss: 3
-draw: 13
-
-Team: Oravska Jasenica
-elo: 599
-goals_scored: 71
-goals_conceded: 87
+Team: MŠK Kysucké Nové Mesto
+elo: 920
+goals_scored: 44
+goals_conceded: 4
 yellow: 73
 red: 8
-win: 10
-loss: 5
-draw: 18
-
-Team: Brezno
-elo: 556
-goals_scored: 72
-goals_conceded: 87
-yellow: 32
-red: 17
-win: 11
-loss: 5
-draw: 17
-
-Team: Detva
-elo: 511
-goals_scored: 68
-goals_conceded: 82
-yellow: 67
-red: 13
 win: 8
-loss: 3
-draw: 17
+draw: 0
+loss: 0
 
-Team: Vrutky
-elo: 489
-goals_scored: 66
-goals_conceded: 81
-yellow: 51
-red: 20
-win: 7
-loss: 3
-draw: 13
-
-Team: Horky
-elo: 470
-goals_scored: 61
-goals_conceded: 103
-yellow: 44
-red: 1
-win: 14
-loss: 9
-draw: 15
-
-Team: Kovacova
-elo: 394
-goals_scored: 73
-goals_conceded: 87
-yellow: 58
-red: 12
-win: 8
-loss: 5
-draw: 13
-
-Team: Cadca
-elo: 241
-goals_scored: 66
-goals_conceded: 83
-yellow: 60
+Team: MFK Dukla Banská Bystrica B
+elo: 980
+goals_scored: 95
+goals_conceded: 0
+yellow: 73
 red: 8
 win: 7
-loss: 4
-draw: 14
+draw: 0
+loss: 0
 
-Team: Nova Bana
-elo: 180
-goals_scored: 69
-goals_conceded: 158
-yellow: 65
-red: 34
-win: 7
-loss: 11
-draw: 13
+Team: TJ Tatran Krásno nad Kysucou
+elo: 911
+goals_scored: 32
+goals_conceded: 4
+yellow: 73
+red: 8
+win: 6
+draw: 0
+loss: 1
 
-Team: ŠK Sásová
-elo: 60
+Team: FK ATTACK Vrútky
+elo: 840
+goals_scored: 23
+goals_conceded: 12
+yellow: 73
+red: 8
+win: 5
+draw: 0
+loss: 3
+
+Team: ŠK Prameň Kováčová
+elo: 700
+goals_scored: 24
+goals_conceded: 20
+yellow: 73
+red: 8
+win: 4
+draw: 1
+loss: 3
+
+Team: MFK Bytča
+elo: 760
+goals_scored: 16
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 4
+draw: 0
+loss: 2
+
+Team: MFK Nová Baňa
+elo: 500
 goals_scored: 13
-goals_conceded: 208
-yellow: 35
-red: 10
-win: 7
-loss: 13
-draw: 13
+goals_conceded: 31
+yellow: 73
+red: 8
+win: 4
+draw: 0
+loss: 4
+
+Team: FK Čadca
+elo: 580
+goals_scored: 20
+goals_conceded: 27
+yellow: 73
+red: 8
+win: 4
+draw: 0
+loss: 4
+
+Team: FK BREZNO
+elo: 560
+goals_scored: 22
+goals_conceded: 33
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 3
+
+Team: MFK Detva
+elo: 590
+goals_scored: 14
+goals_conceded: 22
+yellow: 73
+red: 8
+win: 3
+draw: 0
+loss: 5
+
+Team: FA UNITED NKLG
+elo: 600
+goals_scored: 20
+goals_conceded: 27
+yellow: 73
+red: 8
+win: 2
+draw: 2
+loss: 4
+
+Team: MŠK Rimavská Sobota
+elo: 490
+goals_scored: 15
+goals_conceded: 18
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 4
+
+Team: OFK Hôrky
+elo: 400
+goals_scored: 14
+goals_conceded: 36
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 5
+
+Team: Oravan Oravská Jasenica
+elo: 390
+goals_scored: 17
+goals_conceded: 20
+yellow: 73
+red: 8
+win: 2
+draw: 0
+loss: 6
+
+Team: TJ JEDNOTA Bánová
+elo: 330
+goals_scored: 10
+goals_conceded: 43
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 5
+
+Team: ŠK SÁSOVÁ
+elo: 130
+goals_scored: 2
+goals_conceded: 75
+yellow: 73
+red: 8
+win: 0
+draw: 0
+loss: 8
 `;
 
 /* ---------- Main simulation logic (port of simuluj_zapas) ---------- */
@@ -352,8 +322,27 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   const g2 = samplePoisson(exp_g2);
 
   // cards
-  const yellow1 = randInt(0,4);
-  const yellow2 = randInt(0,5);
+  
+  // Domáci (0–5 kariet)
+  const yellow1 = (() => {
+    const weights = [30,35,20,10,4,1];     // 0,1,2,3,4,5
+    let r = Math.random() * weights.reduce((a,b) => a+b,0);
+    for (let i=0; i<weights.length; i++) {
+      r -= weights[i];
+      if (r < 0) return i;
+    }
+  })();
+
+  // Hostia (0–6 kariet)
+  const yellow2 = (() => {
+    const weights = [25,35,20,10,7,2,1];   // 0,1,2,3,4,5,6
+    let r = Math.random() * weights.reduce((a,b) => a+b,0);
+    for (let i=0; i<weights.length; i++) {
+      r -= weights[i];
+      if (r < 0) return i;
+    }
+  })();
+
   const red1 = (Math.random() < ((st1.red||0)/100))?1:0;
   const red2 = (Math.random() < ((st2.red||0)/100))?1:0;
 
@@ -691,6 +680,51 @@ function simulateAndRender(home, away, speed, onMinute) {
     }
   });
 }
+
+const resetBtn = document.getElementById('resetBtn');
+const homeSel = document.getElementById('homeSelect');
+const awaySel = document.getElementById('awaySelect');
+const stakeInput = document.getElementById('stake');
+const oddsArea = document.getElementById('oddsArea');
+const betArea = document.getElementById('betArea');
+const oddsButtons = document.querySelectorAll('#oddsButtons button');
+const playArea = document.getElementById('playArea');
+const resultArea = document.getElementById('resultArea');
+
+resetBtn.addEventListener('click', () => {
+  // Reset team selects
+  homeSel.selectedIndex = 0;
+  awaySel.selectedIndex = 0;
+  homeSel.style.backgroundColor = '';
+  awaySel.style.backgroundColor = '';
+
+  // Reset odds buttons
+  oddsButtons.forEach(b => {
+    if (b.id === 'btnHome') b.textContent = 'Home';
+    if (b.id === 'btnDraw') b.textContent = 'Draw';
+    if (b.id === 'btnAway') b.textContent = 'Away';
+    b.style.backgroundColor = '';
+    b.disabled = true;
+  });
+
+  // Reset bet input
+  stakeInput.value = '';
+
+  // Reset odds area and bet area
+  oddsArea.textContent = 'Odds will appear after calculation';
+  betArea.hidden = true;
+
+  // Reset play area
+  if (playArea) playArea.innerHTML = '';
+
+  // Keep the placeholder text in resultArea
+  if (resultArea) resultArea.textContent = 'Final score will appear here';
+
+  // Reset variables
+  window.selectedPick = null;
+  window.__lastOdds = null;
+  window.__lastTeams = null;
+});
 
 /* ---------- Init ---------- */
 (function init(){

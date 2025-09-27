@@ -300,3 +300,12 @@ button:disabled {
   cursor: not-allowed;
   background-color: grey;
 }
+
+#resetBtn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 2px solid #000000;
+  background: #ff0000;
+  cursor: pointer;
+}
+
