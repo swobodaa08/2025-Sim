@@ -89,6 +89,9 @@ function calcOdds(st1, st2) {
   const HOME_ADV_PERC = 0.12; // 12% advantage for home
   k1 = round2(k1 * (1 - HOME_ADV_PERC));
   k2 = round2(k2 * (1 + HOME_ADV_PERC));
+  // Ensure odds cannot go below 1.00
+  k1 = Math.max(k1, 1.01);
+  k2 = Math.max(k2, 1.01);
   const kX = round2((k1 + k2) / 1.7);
   return { home: k1, draw: kX, away: k2 };
 }
@@ -278,7 +281,7 @@ win: 0
 draw: 2
 loss: 4
 
-Team: FK POHRONIE Žiar nad Hronom Dolná Ždaňa
+Team: FK POHRONIE Žiar nad Hronom
 elo: 900
 goals_scored: 3
 goals_conceded: 30
@@ -289,7 +292,7 @@ draw: 0
 loss: 6
 
 Team: FK Poprad
-elo: 699
+elo: 499
 goals_scored: 13
 goals_conceded: 2
 yellow: 73
@@ -299,7 +302,7 @@ draw: 1
 loss: 0
 
 Team: MFK Skalica
-elo: 699
+elo: 499
 goals_scored: 25
 goals_conceded: 3
 yellow: 73
@@ -308,8 +311,8 @@ win: 6
 draw: 1
 loss: 0
 
-Team: FC ViOn Zlaté Moravce - Vráble
-elo: 695
+Team: FC ViOn Zlaté Moravce
+elo: 495
 goals_scored: 19
 goals_conceded: 9
 yellow: 73
@@ -319,7 +322,7 @@ draw: 1
 loss: 1
 
 Team: FK Nitra
-elo: 690
+elo: 490
 goals_scored: 17
 goals_conceded: 14
 yellow: 73
@@ -329,7 +332,7 @@ draw: 2
 loss: 2
 
 Team: MFK Dukla Banská Bystrica B
-elo: 690
+elo: 490
 goals_scored: 95
 goals_conceded: 0
 yellow: 73
@@ -339,7 +342,7 @@ draw: 0
 loss: 0
 
 Team: FK Spartak Dubnica nad Váhom
-elo: 687
+elo: 487
 goals_scored: 21
 goals_conceded: 7
 yellow: 73
@@ -349,7 +352,7 @@ draw: 2
 loss: 1
 
 Team: MFK Zvolen
-elo: 685
+elo: 485
 goals_scored: 13
 goals_conceded: 4
 yellow: 73
@@ -359,7 +362,7 @@ draw: 0
 loss: 1
 
 Team: MŠK Tesla Stropkov
-elo: 681
+elo: 481
 goals_scored: 11
 goals_conceded: 7
 yellow: 73
@@ -369,7 +372,7 @@ draw: 1
 loss: 1
 
 Team: MŠK Púchov
-elo: 681
+elo: 481
 goals_scored: 7
 goals_conceded: 3
 yellow: 73
@@ -379,7 +382,7 @@ draw: 2
 loss: 1
 
 Team: MŠK NOVOHRAD Lučenec
-elo: 680
+elo: 480
 goals_scored: 17
 goals_conceded: 9
 yellow: 73
@@ -389,7 +392,7 @@ draw: 1
 loss: 2
 
 Team: FC ŠTK 1914 Šamorín
-elo: 680
+elo: 480
 goals_scored: 16
 goals_conceded: 23
 yellow: 73
@@ -399,7 +402,7 @@ draw: 1
 loss: 3
 
 Team: MFK Tatran Liptovský Mikuláš
-elo: 677
+elo: 477
 goals_scored: 17
 goals_conceded: 5
 yellow: 73
@@ -409,7 +412,7 @@ draw: 3
 loss: 0
 
 Team: FK Humenné
-elo: 674
+elo: 474
 goals_scored: 15
 goals_conceded: 12
 yellow: 73
@@ -419,7 +422,7 @@ draw: 1
 loss: 1
 
 Team: SLAVOJ TREBIŠOV
-elo: 670
+elo: 470
 goals_scored: 13
 goals_conceded: 9
 yellow: 73
@@ -429,7 +432,7 @@ draw: 2
 loss: 2
 
 Team: FK Dúbravka
-elo: 670
+elo: 470
 goals_scored: 14
 goals_conceded: 19
 yellow: 73
@@ -439,7 +442,7 @@ draw: 3
 loss: 2
 
 Team: FK Spišská Nová Ves
-elo: 668
+elo: 468
 goals_scored: 11
 goals_conceded: 11
 yellow: 73
@@ -449,7 +452,7 @@ draw: 1
 loss: 2
 
 Team: OK Častkovce
-elo: 666
+elo: 466
 goals_scored: 17
 goals_conceded: 22
 yellow: 73
@@ -459,7 +462,7 @@ draw: 0
 loss: 4
 
 Team: FKM Karlova Ves Bratislava
-elo: 660
+elo: 460
 goals_scored: 9
 goals_conceded: 8
 yellow: 73
@@ -469,7 +472,7 @@ draw: 0
 loss: 3
 
 Team: MŠK Námestovo
-elo: 654
+elo: 454
 goals_scored: 16
 goals_conceded: 11
 yellow: 73
@@ -479,7 +482,7 @@ draw: 1
 loss: 2
 
 Team: MFK Snina
-elo: 649
+elo: 449
 goals_scored: 10
 goals_conceded: 18
 yellow: 73
@@ -489,7 +492,7 @@ draw: 1
 loss: 4
 
 Team: SDM Domino
-elo: 649
+elo: 449
 goals_scored: 20
 goals_conceded: 16
 yellow: 73
@@ -499,7 +502,7 @@ draw: 2
 loss: 2
 
 Team: KFC Komárno futbal
-elo: 647
+elo: 447
 goals_scored: 12
 goals_conceded: 15
 yellow: 73
@@ -509,7 +512,7 @@ draw: 2
 loss: 2
 
 Team: FK Senica
-elo: 645
+elo: 445
 goals_scored: 12
 goals_conceded: 12
 yellow: 73
@@ -519,7 +522,7 @@ draw: 4
 loss: 2
 
 Team: FK Inter Bratislava
-elo: 641
+elo: 441
 goals_scored: 15
 goals_conceded: 17
 yellow: 73
@@ -529,7 +532,7 @@ draw: 1
 loss: 3
 
 Team: FK Lokomotíva Trnava
-elo: 638
+elo: 438
 goals_scored: 12
 goals_conceded: 16
 yellow: 73
@@ -539,7 +542,7 @@ draw: 0
 loss: 5
 
 Team: MFK Dolný Kubín
-elo: 637
+elo: 437
 goals_scored: 4
 goals_conceded: 12
 yellow: 73
@@ -549,7 +552,7 @@ draw: 1
 loss: 4
 
 Team: FC LOKOMOTÍVA KOŠICE
-elo: 630
+elo: 430
 goals_scored: 6
 goals_conceded: 16
 yellow: 73
@@ -558,18 +561,8 @@ win: 1
 draw: 1
 loss: 4
 
-Team: MŠK Kysucké Nové Mesto
-elo: 630
-goals_scored: 44
-goals_conceded: 4
-yellow: 73
-red: 8
-win: 8
-draw: 0
-loss: 0
-
 Team: MŠK Senec
-elo: 628
+elo: 428
 goals_scored: 4
 goals_conceded: 11
 yellow: 73
@@ -578,8 +571,10 @@ win: 0
 draw: 3
 loss: 4
 
+
+
 Team: MFK Vranov nad Topľou
-elo: 621
+elo: 421
 goals_scored: 4
 goals_conceded: 10
 yellow: 73
@@ -589,7 +584,7 @@ draw: 1
 loss: 4
 
 Team: MŠK Považská Bystrica
-elo: 619
+elo: 419
 goals_scored: 2
 goals_conceded: 27
 yellow: 73
@@ -599,7 +594,7 @@ draw: 0
 loss: 6
 
 Team: FK GALAKTIK
-elo: 616
+elo: 416
 goals_scored: 8
 goals_conceded: 19
 yellow: 73
@@ -609,7 +604,7 @@ draw: 1
 loss: 4
 
 Team: Partizán Bardejov BŠK
-elo: 609
+elo: 409
 goals_scored: 5
 goals_conceded: 16
 yellow: 73
@@ -618,8 +613,18 @@ win: 0
 draw: 2
 loss: 4
 
+Team: MŠK Kysucké Nové Mesto
+elo: 226
+goals_scored: 44
+goals_conceded: 4
+yellow: 73
+red: 8
+win: 8
+draw: 0
+loss: 0
+
 Team: TJ Tatran Krásno nad Kysucou
-elo: 600
+elo: 222
 goals_scored: 32
 goals_conceded: 4
 yellow: 73
@@ -629,7 +634,7 @@ draw: 0
 loss: 1
 
 Team: MFK Bytča
-elo: 589
+elo: 210
 goals_scored: 16
 goals_conceded: 9
 yellow: 73
@@ -639,7 +644,7 @@ draw: 0
 loss: 2
 
 Team: FK ATTACK Vrútky
-elo: 582
+elo: 182
 goals_scored: 23
 goals_conceded: 12
 yellow: 73
@@ -649,7 +654,7 @@ draw: 0
 loss: 3
 
 Team: ŠK Prameň Kováčová
-elo: 579
+elo: 174
 goals_scored: 24
 goals_conceded: 20
 yellow: 73
@@ -659,7 +664,7 @@ draw: 1
 loss: 3
 
 Team: FK Čadca
-elo: 570
+elo: 160
 goals_scored: 20
 goals_conceded: 27
 yellow: 73
@@ -669,7 +674,7 @@ draw: 0
 loss: 4
 
 Team: FA UNITED NKLG
-elo: 570
+elo: 155
 goals_scored: 20
 goals_conceded: 27
 yellow: 73
@@ -679,7 +684,7 @@ draw: 2
 loss: 4
 
 Team: MFK Detva
-elo: 562
+elo: 143
 goals_scored: 14
 goals_conceded: 22
 yellow: 73
@@ -688,18 +693,8 @@ win: 3
 draw: 0
 loss: 5
 
-Team: MFK Nová Baňa
-elo: 560
-goals_scored: 13
-goals_conceded: 31
-yellow: 73
-red: 8
-win: 4
-draw: 0
-loss: 4
-
 Team: FK BREZNO
-elo: 560
+elo: 141
 goals_scored: 22
 goals_conceded: 33
 yellow: 73
@@ -708,8 +703,19 @@ win: 3
 draw: 2
 loss: 3
 
+Team: MFK Nová Baňa
+elo: 130
+goals_scored: 13
+goals_conceded: 31
+yellow: 73
+red: 8
+win: 4
+draw: 0
+loss: 4
+
+
 Team: MŠK Rimavská Sobota
-elo: 530
+elo: 127
 goals_scored: 15
 goals_conceded: 18
 yellow: 73
@@ -719,7 +725,7 @@ draw: 1
 loss: 4
 
 Team: OFK Hôrky
-elo: 500
+elo: 120
 goals_scored: 14
 goals_conceded: 36
 yellow: 73
@@ -729,7 +735,7 @@ draw: 1
 loss: 5
 
 Team: Oravan Oravská Jasenica
-elo: 480
+elo: 111
 goals_scored: 17
 goals_conceded: 20
 yellow: 73
@@ -739,7 +745,7 @@ draw: 0
 loss: 6
 
 Team: TJ JEDNOTA Bánová
-elo: 470
+elo: 107
 goals_scored: 10
 goals_conceded: 43
 yellow: 73
@@ -749,7 +755,7 @@ draw: 1
 loss: 5
 
 Team: ŠK SÁSOVÁ
-elo: 290
+elo: 70
 goals_scored: 2
 goals_conceded: 75
 yellow: 73
