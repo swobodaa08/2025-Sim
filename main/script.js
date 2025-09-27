@@ -202,7 +202,7 @@ win: 3
 draw: 2
 loss: 1
 
-Team: ŠK Slovan Bratislava futbal
+Team: ŠK Slovan Bratislava
 elo: 955
 goals_scored: 16
 goals_conceded: 6
@@ -775,8 +775,8 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   // expected goals
   let [exp_g1, exp_g2] = expectedGoals(st1.elo||1000, st2.elo||1000);
 
-  // small home advantage +10%
-  exp_g1 *= 1.1;
+  // small home advantage +15%
+  exp_g1 *= 1.15;
 
   // sample goals by Poisson
   const g1 = samplePoisson(exp_g1);
@@ -1186,6 +1186,7 @@ resetBtn.addEventListener('click', () => {
   window.__lastOdds = null;
   window.__lastTeams = null;
 });
+
 
 /* ---------- Init ---------- */
 (function init(){
