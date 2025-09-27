@@ -144,6 +144,457 @@ function populateSelects(){
 
 /* ---------- Default teams sample ---------- */
 const defaultText = `
+Team: MŠK Žilina
+elo: 2895
+goals_scored: 12
+goals_conceded: 4
+yellow: 73
+red: 8
+win: 5
+draw: 1
+loss: 0
+
+Team: FK Železiarne Podbrezová
+elo: 2810
+goals_scored: 12
+goals_conceded: 6
+yellow: 73
+red: 8
+win: 4
+draw: 1
+loss: 1
+
+Team: FC Spartak Trnava
+elo: 2800
+goals_scored: 11
+goals_conceded: 4
+yellow: 73
+red: 8
+win: 4
+draw: 0
+loss: 2
+
+Team: MFK Ružomberok
+elo: 2790
+goals_scored: 13
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 1
+
+Team: FC Petržalka
+elo: 2700
+goals_scored: 13
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 1
+
+Team: ŠK Slovan Bratislava futbal
+elo: 2680
+goals_scored: 16
+goals_conceded: 6
+yellow: 73
+red: 8
+win: 3
+draw: 1
+loss: 2
+
+Team: FC TATRAN Prešov
+elo: 2400
+goals_scored: 8
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 3
+draw: 0
+loss: 3
+
+Team: MFK Dukla Banská Bystrica
+elo: 2350
+goals_scored: 7
+goals_conceded: 10
+yellow: 73
+red: 8
+win: 2
+draw: 2
+loss: 2
+
+Team: FK DAC 1904 Dunajská Streda
+elo: 2240
+goals_scored: 10
+goals_conceded: 7
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 3
+
+Team: MFK Zemplín Michalovce
+elo: 2080
+goals_scored: 9
+goals_conceded: 10
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 3
+
+Team: FC KOŠICE
+elo: 2100
+goals_scored: 6
+goals_conceded: 10
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 3
+
+Team: AS Trenčín
+elo: 1980
+goals_scored: 13
+goals_conceded: 14
+yellow: 73
+red: 8
+win: 2
+draw: 0
+loss: 4
+
+Team: MŠK FOMAT Martin
+elo: 1800
+goals_scored: 6
+goals_conceded: 11
+yellow: 73
+red: 8
+win: 0
+draw: 2
+loss: 4
+
+Team: FK POHRONIE Žiar nad Hronom Dolná Ždaňa
+elo: 1690
+goals_scored: 3
+goals_conceded: 30
+yellow: 73
+red: 8
+win: 0
+draw: 0
+loss: 6
+
+Team: FK Poprad
+elo: 1590
+goals_scored: 13
+goals_conceded: 2
+yellow: 73
+red: 8
+win: 5
+draw: 1
+loss: 0
+
+Team: MFK Zvolen
+elo: 1540
+goals_scored: 13
+goals_conceded: 4
+yellow: 73
+red: 8
+win: 5
+draw: 0
+loss: 1
+
+Team: MŠK Tesla Stropkov
+elo: 1478
+goals_scored: 11
+goals_conceded: 7
+yellow: 73
+red: 8
+win: 4
+draw: 1
+loss: 1
+
+Team: Futbalový klub Humenné, s. r. o.
+elo: 1510
+goals_scored: 15
+goals_conceded: 12
+yellow: 73
+red: 8
+win: 4
+draw: 1
+loss: 1
+
+Team: MFK Tatran Liptovský Mikuláš
+elo: 1500
+goals_scored: 17
+goals_conceded: 5
+yellow: 73
+red: 8
+win: 3
+draw: 3
+loss: 0
+
+Team: SLAVOJ TREBIŠOV
+elo: 1340
+goals_scored: 13
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 2
+
+Team: MŠK NOVOHRAD Lučenec
+elo: 1390
+goals_scored: 17
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 3
+draw: 1
+loss: 2
+
+Team: Futbalový klub Spišská Nová Ves
+elo: 1260
+goals_scored: 11
+goals_conceded: 11
+yellow: 73
+red: 8
+win: 3
+draw: 1
+loss: 2
+
+Team: MŠK Námestovo
+elo: 1200
+goals_scored: 16
+goals_conceded: 11
+yellow: 73
+red: 8
+win: 3
+draw: 1
+loss: 2
+
+
+Team: MFK Snina
+elo: 1080
+goals_scored: 10
+goals_conceded: 18
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 4
+
+Team: MFK Dolný Kubín
+elo: 990
+goals_scored: 4
+goals_conceded: 12
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 4
+
+Team: FC LOKOMOTÍVA KOŠICE
+elo: 1000
+goals_scored: 6
+goals_conceded: 16
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 4
+
+Team: MFK Vranov nad Topľou
+elo: 930
+goals_scored: 4
+goals_conceded: 10
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 4
+
+Team: FK GALAKTIK
+elo: 880
+goals_scored: 8
+goals_conceded: 19
+yellow: 73
+red: 8
+win: 1
+draw: 1
+loss: 4
+
+Team: Partizán Bardejov BŠK
+elo: 820
+goals_scored: 5
+goals_conceded: 16
+yellow: 73
+red: 8
+win: 0
+draw: 2
+loss: 4
+
+Team: MFK Skalica
+elo: 1420
+goals_scored: 25
+goals_conceded: 3
+yellow: 73
+red: 8c
+win: 6
+draw: 1
+loss: 0
+
+Team: FC ViOn Zlaté Moravce - Vráble
+elo: 1340
+goals_scored: 19
+goals_conceded: 9
+yellow: 73
+red: 8
+win: 5
+draw: 1
+loss: 1
+
+Team: FK Nitra
+elo: 1260
+goals_scored: 17
+goals_conceded: 14
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 2
+
+Team: FK Spartak Dubnica nad Váhom
+elo: 1225
+goals_scored: 21
+goals_conceded: 7
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 1
+
+Team: MŠK Púchov
+elo: 1215
+goals_scored: 7
+goals_conceded: 3
+yellow: 73
+red: 8
+win: 3
+draw: 2
+loss: 1
+
+Team: FC ŠTK 1914 Šamorín
+elo: 1200
+goals_scored: 16
+goals_conceded: 23
+yellow: 73
+red: 8
+win: 3
+draw: 1
+loss: 3
+
+Team: FK Dúbravka
+elo: 1190
+goals_scored: 14
+goals_conceded: 19
+yellow: 73
+red: 8
+win: 2
+draw: 3
+loss: 2
+
+Team: OK Častkovce
+elo: 1130
+goals_scored: 17
+goals_conceded: 22
+yellow: 73
+red: 8
+win: 3
+draw: 0
+loss: 4
+
+Team: FKM Karlova Ves Bratislava
+elo: 1115
+goals_scored: 9
+goals_conceded: 8
+yellow: 73
+red: 8
+win: 3
+draw: 0
+loss: 3
+
+Team: SDM Domino
+elo: 1100
+goals_scored: 20
+goals_conceded: 16
+yellow: 73
+red: 8
+win: 2
+draw: 2
+loss: 2
+
+Team: KFC Komárno futbal
+elo: 1080
+goals_scored: 12
+goals_conceded: 15
+yellow: 73
+red: 8
+win: 2
+draw: 2
+loss: 2
+
+Team: FK Senica
+elo: 992
+goals_scored: 12
+goals_conceded: 12
+yellow: 73
+red: 8
+win: 1
+draw: 4
+loss: 2
+
+Team: FK Inter Bratislava
+elo: 950
+goals_scored: 15
+goals_conceded: 17
+yellow: 73
+red: 8
+win: 2
+draw: 1
+loss: 3
+
+Team: FK Lokomotíva Trnava
+elo: 860
+goals_scored: 12
+goals_conceded: 16
+yellow: 73
+red: 8
+win: 2
+draw: 0
+loss: 5
+
+Team: MŠK Senec
+elo: 840
+goals_scored: 4
+goals_conceded: 11
+yellow: 73
+red: 8
+win: 0
+draw: 3
+loss: 4
+
+Team: MŠK Považská Bystrica
+elo: 800
+goals_scored: 2
+goals_conceded: 27
+yellow: 73
+red: 8
+win: 1
+draw: 0
+loss: 6
+
 Team: MŠK Kysucké Nové Mesto
 elo: 920
 goals_scored: 44
@@ -295,7 +746,7 @@ draw: 1
 loss: 5
 
 Team: ŠK SÁSOVÁ
-elo: 130
+elo: 180
 goals_scored: 2
 goals_conceded: 75
 yellow: 73
