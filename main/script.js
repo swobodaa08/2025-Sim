@@ -838,7 +838,7 @@ draw: 1
 loss: 5
 
 Team: ŠK SÁSOVÁ
-elo: 70
+elo: 41
 goals_scored: 2
 goals_conceded: 75
 yellow: 73
