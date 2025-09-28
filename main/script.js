@@ -150,6 +150,41 @@ function populateSelects(){
   });
 }
 
+function showMessage(status, lostOrWon, balance, isWin) {
+  const box = document.getElementById('messageBox');
+  const inner = box.querySelector('.innerBox');
+
+  inner.classList.remove('win', 'loss');
+  inner.classList.add(isWin ? 'win' : 'loss');
+
+  document.getElementById('line1').textContent = status;
+  document.getElementById('line2').textContent = lostOrWon;
+  document.getElementById('line3').textContent = `Balance: ${balance} €`;
+
+  // zmeníme text v spodnom riadku
+  box.querySelector('.hint').textContent = "Press any key to continue";
+
+  box.classList.add('show');
+  box.style.display = 'flex';
+  box.focus();
+
+  function keyHandler(e) {
+    // zachytí ľubovoľnú klávesu
+    box.classList.remove('show');
+    box.classList.add('hide');
+    setTimeout(() => {
+      box.style.display = 'none';
+      box.classList.remove('hide');
+    }, 600);
+
+    document.removeEventListener('keydown', keyHandler);
+  }
+
+  document.addEventListener('keydown', keyHandler);
+}
+
+
+
 /* ---------- Default teams sample ---------- */
 const defaultText = `
 Team: MŠK Žilina 
@@ -1028,11 +1063,13 @@ document.getElementById('placeBet').addEventListener('click', async () => {
     if (pick === outcome) {
       const win = Math.round(stake * (usedOdd - 1) * 100)/100;
       balance = Math.round((balance + win)*100)/100;
-      alert(`Good job! You won ${win} € (balance: ${balance} €)`);
+      showMessage("Congratulations!", `You won ${win} €`, balance, true);
     } else {
       balance = Math.round((balance - stake)*100)/100;
-      alert(`Unfortunately. You lost ${stake} € (balance: ${balance} €)`);
+      showMessage("Unfortunately.", `You lost ${stake} €`, balance, false);
     }
+
+
     saveBalance(balance);
     document.getElementById('balance').textContent = balance.toFixed(2);
   }
