@@ -144,14 +144,14 @@ function round2(n){ return Math.round(n*100)/100; }
 /* expected goals heuristic (port expecting log base 1.25) */
 function expectedGoals(elo1, elo2) {
   const max_goly = 29;
-  const min_goly = 0.8;
+  const min_goly = 0.7;
   const ratio = (elo1 + 1) / (elo2 + 1);
   // log base 1.25 -> Math.log(ratio)/Math.log(1.25)
   let g1 = Math.log(Math.max(1e-8, ratio)) / Math.log(1.25);
   let g2 = Math.log(Math.max(1e-8, 1/ratio)) / Math.log(1.25);
   // ZVÝŠENIE OČAKÁVANÝCH GÓLOV
   g1 *= 2.5;
-  g2 *= 2.5;
+  g2 *= 2.1;
   g1 = clamp(g1, min_goly, max_goly);
   g2 = clamp(g2, min_goly, max_goly);
   return [g1, g2];
@@ -864,24 +864,15 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   const g2 = samplePoisson(exp_g2);
 
   // cards
-  // Žlté karty: Poissonov rozptyl, priemer 5 na tím
-  const yellow1 = samplePoisson(2.5);
-  const yellow2 = samplePoisson(3);
-  // Červené karty: za každé 4 žlté 10% šanca na červenú kartu (zaokrúhlené nadol)
-  const red1 = (() => {
-    let reds = 0;
-    for (let i = 0; i < Math.floor(yellow1 / 4); i++) {
-      if (Math.random() < 0.10) reds++;
-    }
-    return reds;
-  })();
-  const red2 = (() => {
-    let reds = 0;
-    for (let i = 0; i < Math.floor(yellow2 / 4); i++) {
-      if (Math.random() < 0.15) reds++;
-    }
-    return reds;
-  })();
+  // Očakávané žlté a červené karty s rozptylom
+  const exp_yellow1 = 1.5 + (Math.random()-0.5)*1.5;
+  const exp_yellow2 = 2.5 + (Math.random()-0.5)*1.5;
+  const yellow1 = samplePoisson(Math.max(0.5, exp_yellow1));
+  const yellow2 = samplePoisson(Math.max(0.5, exp_yellow2));
+  const exp_red1 = 0.10 + (Math.random()-0.5)*0.05;
+  const exp_red2 = 0.12 + (Math.random()-0.5)*0.09;
+  const red1 = samplePoisson(Math.max(0, exp_red1));
+  const red2 = samplePoisson(Math.max(0, exp_red2));
 
   const nadstaveny = randInt(1,8);
   const totalM = 90 + nadstaveny;
@@ -1066,6 +1057,7 @@ document.getElementById('placeBet').addEventListener('click', async () => {
 
   // run rounds sequentially
   let homeWins = 0, awayWins = 0, draws = 0, totalGoalsHome = 0, totalGoalsAway = 0;
+  let totalYellowHome = 0, totalYellowAway = 0, totalRedHome = 0, totalRedAway = 0;
   for (let r=0;r<rounds;r++){
     // simulate one match
     const home = window.__lastTeams.home;
@@ -1087,6 +1079,10 @@ document.getElementById('placeBet').addEventListener('click', async () => {
     const g2 = res.statistiky[away].goly;
     totalGoalsHome += g1;
     totalGoalsAway += g2;
+    totalYellowHome += res.statistiky[home]["zlte karty"] || res.statistiky[home]["žlté"] || 0;
+    totalYellowAway += res.statistiky[away]["zlte karty"] || res.statistiky[away]["žlté"] || 0;
+    totalRedHome += res.statistiky[home]["cervene karty"] || res.statistiky[home]["červené"] || 0;
+    totalRedAway += res.statistiky[away]["cervene karty"] || res.statistiky[away]["červené"] || 0;
     if (g1 > g2) homeWins++;
     else if (g2 > g1) awayWins++;
     else draws++;
@@ -1129,8 +1125,8 @@ document.getElementById('placeBet').addEventListener('click', async () => {
       ${window.__lastTeams.away}: ${awayWins} wins<br>
       Draws: ${draws} draws<br><br>
       ⚽: ${window.__lastTeams.home} ${totalGoalsHome} - ${totalGoalsAway} ${window.__lastTeams.away}<br>
-      🟨: ${window.__lastTeams.home} ${Math.round(rounds*2.5)} - ${Math.round(rounds*3)} ${window.__lastTeams.away}<br>
-      🟥: ${window.__lastTeams.home} ${Math.round(rounds*0.1)} - ${Math.round(rounds*0.2)} ${window.__lastTeams.away}
+      🟨: ${window.__lastTeams.home} ${totalYellowHome} - ${totalYellowAway} ${window.__lastTeams.away}<br>
+      🟥: ${window.__lastTeams.home} ${totalRedHome} - ${totalRedAway} ${window.__lastTeams.away}
     </div>`;
     document.getElementById('resultArea').innerHTML += summary;
   }
