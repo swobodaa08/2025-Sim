@@ -47,6 +47,7 @@
 }
 
 #loginUser, #loginPass {
+  background-color: #010914;
   border: 1px solid #ffffff;
   border-radius: 6px;
   box-sizing: border-box;
