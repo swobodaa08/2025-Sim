@@ -124,13 +124,14 @@ function teamsToText(teams) {
 function calcOdds(st1, st2) {
   const elo1 = (st1.elo !== undefined) ? st1.elo : 1000;
   const elo2 = (st2.elo !== undefined) ? st2.elo : 1000;
-  const EA = 1 / (1 + Math.pow(10, (elo2 - elo1)/400));
-  const EB = 1 / (1 + Math.pow(10, (elo1 - elo2)/400));
+  // ZNÍŽENIE vplyvu ELO rozdielu: namiesto 400 použijeme 650
+  const EA = 1 / (1 + Math.pow(10, (elo2 - elo1)/650));
+  const EB = 1 / (1 + Math.pow(10, (elo1 - elo2)/650));
   let k1 = clamp(round2(1 / EA), 1.01, 150);
   let k2 = clamp(round2(1 / EB), 1.01, 150);
   // Home advantage: only if home team is not much weaker
   let HOME_ADV_PERC = 0.12;
-  if (elo1 < elo2 * 0.5) HOME_ADV_PERC = 0; // no advantage for very weak home team
+  if (elo1 < elo2 * 0.5) HOME_ADV_PERC = 0.02; // 2% advantage for very weak home team
   k1 = round2(k1 * (1 - HOME_ADV_PERC));
   k2 = round2(k2 * (1 + HOME_ADV_PERC));
   // Ensure odds cannot go below 1.00
@@ -144,13 +145,13 @@ function round2(n){ return Math.round(n*100)/100; }
 /* expected goals heuristic (port expecting log base 1.25) */
 function expectedGoals(elo1, elo2) {
   const max_goly = 29;
-  const min_goly = 0.7;
+  const min_goly = 0.8;
   const ratio = (elo1 + 1) / (elo2 + 1);
   // log base 1.25 -> Math.log(ratio)/Math.log(1.25)
   let g1 = Math.log(Math.max(1e-8, ratio)) / Math.log(1.25);
   let g2 = Math.log(Math.max(1e-8, 1/ratio)) / Math.log(1.25);
   // ZVÝŠENIE OČAKÁVANÝCH GÓLOV
-  g1 *= 2.5;
+  g1 *= 2.6;
   g2 *= 2.1;
   g1 = clamp(g1, min_goly, max_goly);
   g2 = clamp(g2, min_goly, max_goly);
@@ -1053,7 +1054,7 @@ document.getElementById('placeBet').addEventListener('click', async () => {
   document.getElementById('resultArea').textContent = 'Simulating...';
 
   const speed = parseInt(document.getElementById('speed').value, 10);
-  const rounds = Math.max(1, Math.min(20, parseInt(document.getElementById('rounds').value,10) || 1));
+  const rounds = Math.max(1, Math.min(100, parseInt(document.getElementById('rounds').value,10) || 1));
 
   // run rounds sequentially
   let homeWins = 0, awayWins = 0, draws = 0, totalGoalsHome = 0, totalGoalsAway = 0;
