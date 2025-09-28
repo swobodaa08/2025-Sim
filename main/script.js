@@ -143,12 +143,15 @@ function round2(n){ return Math.round(n*100)/100; }
 
 /* expected goals heuristic (port expecting log base 1.25) */
 function expectedGoals(elo1, elo2) {
-  const max_goly = 20;
-  const min_goly = 0.2;
+  const max_goly = 29;
+  const min_goly = 0.8;
   const ratio = (elo1 + 1) / (elo2 + 1);
   // log base 1.25 -> Math.log(ratio)/Math.log(1.25)
   let g1 = Math.log(Math.max(1e-8, ratio)) / Math.log(1.25);
   let g2 = Math.log(Math.max(1e-8, 1/ratio)) / Math.log(1.25);
+  // ZVÝŠENIE OČAKÁVANÝCH GÓLOV
+  g1 *= 2.5;
+  g2 *= 2.5;
   g1 = clamp(g1, min_goly, max_goly);
   g2 = clamp(g2, min_goly, max_goly);
   return [g1, g2];
@@ -861,29 +864,24 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   const g2 = samplePoisson(exp_g2);
 
   // cards
-  
-  // Domáci (0–5 kariet)
-  const yellow1 = (() => {
-    const weights = [30,35,20,10,4,1];     // 0,1,2,3,4,5
-    let r = Math.random() * weights.reduce((a,b) => a+b,0);
-    for (let i=0; i<weights.length; i++) {
-      r -= weights[i];
-      if (r < 0) return i;
+  // Žlté karty: Poissonov rozptyl, priemer 5 na tím
+  const yellow1 = samplePoisson(2.5);
+  const yellow2 = samplePoisson(3);
+  // Červené karty: za každé 4 žlté 10% šanca na červenú kartu (zaokrúhlené nadol)
+  const red1 = (() => {
+    let reds = 0;
+    for (let i = 0; i < Math.floor(yellow1 / 4); i++) {
+      if (Math.random() < 0.10) reds++;
     }
+    return reds;
   })();
-
-  // Hostia (0–6 kariet)
-  const yellow2 = (() => {
-    const weights = [25,35,20,10,7,2,1];   // 0,1,2,3,4,5,6
-    let r = Math.random() * weights.reduce((a,b) => a+b,0);
-    for (let i=0; i<weights.length; i++) {
-      r -= weights[i];
-      if (r < 0) return i;
+  const red2 = (() => {
+    let reds = 0;
+    for (let i = 0; i < Math.floor(yellow2 / 4); i++) {
+      if (Math.random() < 0.15) reds++;
     }
+    return reds;
   })();
-
-  const red1 = (Math.random() < 0.01) ? 1 : 0; // domáci
-  const red2 = (Math.random() < 0.02) ? 1 : 0; // hostia
 
   const nadstaveny = randInt(1,8);
   const totalM = 90 + nadstaveny;
@@ -1129,7 +1127,7 @@ document.getElementById('placeBet').addEventListener('click', async () => {
     const summary = `<div style='margin-top:10px'><strong>Summary (${rounds} matches):</strong><br>
       ${window.__lastTeams.home}: ${homeWins} wins<br>
       ${window.__lastTeams.away}: ${awayWins} wins<br>
-      Draws: ${draws} draws<br>
+      Draws: ${draws} draws<br><br>
       ⚽: ${window.__lastTeams.home} ${totalGoalsHome} - ${totalGoalsAway} ${window.__lastTeams.away}<br>
       🟨: ${window.__lastTeams.home} ${Math.round(rounds*2.5)} - ${Math.round(rounds*3)} ${window.__lastTeams.away}<br>
       🟥: ${window.__lastTeams.home} ${Math.round(rounds*0.1)} - ${Math.round(rounds*0.2)} ${window.__lastTeams.away}
