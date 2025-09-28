@@ -12,3 +12,4 @@ vrskovy:SPSIT
 pokorny:SPSIT
 rabik:SPSIT
 piesecky:SPSIT
+michalovic:kovacik
