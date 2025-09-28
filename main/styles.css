@@ -1,3 +1,65 @@
+/* celý overlay */
+#loginOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* box na login */
+.loginBox {
+  background: rgb(0, 45, 119);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+  text-align: center;
+  width: 280px;
+}
+
+.loginBox input {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.loginBox button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+#loginMsg {
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+#loginText {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+#loginUser, #loginPass {
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+#loginBtn {
+  background: #048647;
+  color: #ffffff;
+  border: rgb(255, 255, 255), 1px solid;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 /* Center only the specific muted element in the first box */
 #chooseTeamsTitle {
   text-align: center;

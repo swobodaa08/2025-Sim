@@ -1,5 +1,48 @@
 /* ---------- Utility & port of Python logic into JS ---------- */
 
+let users = {};
+
+fetch("users.txt")
+  .then(res => res.text())
+  .then(text => {
+    text.split("\n").forEach(line => {
+      const [u, p] = line.trim().split(":");
+      if (u && p) users[u] = p;
+    });
+  })
+  .catch(err => console.error("Nepodarilo sa načítať users.txt", err));
+
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById('loginOverlay');
+  const userInput = document.getElementById('loginUser');
+  const passInput = document.getElementById('loginPass');
+  const loginBtn = document.getElementById('loginBtn');
+  const msg = document.getElementById('loginMsg');
+  const loggedUser = document.getElementById('loggedUser');
+
+  // Nastav tu svoje prihlasovacie údaje:
+  const correctUser = "admin";
+  const correctPass = "1234";
+
+  loginBtn.addEventListener("click", checkLogin);
+  passInput.addEventListener("keydown", e => { if (e.key === "Enter") checkLogin(); });
+
+  function checkLogin() {
+    const u = userInput.value.trim();
+    const p = passInput.value;
+
+    if (users[u] && users[u] === p) {
+      overlay.style.display = "none";
+      loggedUser.textContent = `Logged in as: ${u}`;
+      loggedUser.style.display = "inline-block";
+    } else {
+      msg.textContent = "Wrong username or password!";
+    }
+  }
+
+});
+
+
 /* Poisson sampler (Knuth) */
 function samplePoisson(lambda) {
   if (lambda <= 0) return 0;
