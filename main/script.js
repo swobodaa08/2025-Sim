@@ -1161,16 +1161,16 @@ function simulateAndRender(home, away, speed, onMinute) {
     exp_g1 *= 1.1;
     let g1 = samplePoisson(exp_g1);
     let g2 = samplePoisson(exp_g2);
-    // 1.8% šanca na prekvapenie: outsider vyhrá, skóre sa nastaví na výhru outsidera
-    if (Math.random() < 0.018 && st1.elo !== st2.elo) {
+    // 1.9% šanca na prekvapenie: outsider vyhrá, skóre sa nastaví na výhru outsidera
+    if (Math.random() < 0.019 && st1.elo !== st2.elo) {
       if (st1.elo > st2.elo) {
         // Home is favorite, force away win
-        g2 = Math.max(g1 + 1, g2 + 1);
-        g1 = Math.min(g1, g2 - 1);
+        g2 = Math.random(0, 4);
+        g1 = g2 - Math.random(1, g2);
       } else {
         // Away is favorite, force home win
-        g1 = Math.max(g2 + 1, g1 + 1);
-        g2 = Math.min(g2, g1 - 1);
+        g1 = Math.random(0, 4);
+        g2 = g1 - Math.random(1, g1);
       }
     }
     const yellow1 = randInt(0,4);
