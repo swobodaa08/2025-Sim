@@ -107,7 +107,7 @@ body {
   padding: 24px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.45);
   transition: background 0.3s;
-  height: 1000px;
+  height: 1160px;
 }
 
 h1 {
@@ -208,7 +208,7 @@ button:disabled {
 }
 
 .box:last-of-type {
-  min-height: 360px;
+  min-height: 530px;
 }
 
 /* ===== Výsledky ===== */

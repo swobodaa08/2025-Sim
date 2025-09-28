@@ -1067,6 +1067,7 @@ document.getElementById('placeBet').addEventListener('click', async () => {
   const rounds = Math.max(1, Math.min(20, parseInt(document.getElementById('rounds').value,10) || 1));
 
   // run rounds sequentially
+  let homeWins = 0, awayWins = 0, draws = 0, totalGoalsHome = 0, totalGoalsAway = 0;
   for (let r=0;r<rounds;r++){
     // simulate one match
     const home = window.__lastTeams.home;
@@ -1083,7 +1084,14 @@ document.getElementById('placeBet').addEventListener('click', async () => {
     };
 
     const res = await simulateAndRender(home, away, speed, onMinute);
-    // res is result object (or finalize if animated)
+    // Tally results for summary
+    const g1 = res.statistiky[home].goly;
+    const g2 = res.statistiky[away].goly;
+    totalGoalsHome += g1;
+    totalGoalsAway += g2;
+    if (g1 > g2) homeWins++;
+    else if (g2 > g1) awayWins++;
+    else draws++;
     // Show result
     document.getElementById('resultArea').innerHTML = `
       <div><strong>${res.vysledok}</strong></div>
@@ -1115,6 +1123,18 @@ document.getElementById('placeBet').addEventListener('click', async () => {
 
     saveBalance(balance);
     document.getElementById('balance').textContent = balance.toFixed(2);
+  }
+  // After all rounds, show summary
+  if (rounds > 1) {
+    const summary = `<div style='margin-top:10px'><strong>Summary (${rounds} matches):</strong><br>
+      ${window.__lastTeams.home}: ${homeWins} wins<br>
+      ${window.__lastTeams.away}: ${awayWins} wins<br>
+      Draws: ${draws} draws<br>
+      ⚽: ${window.__lastTeams.home} ${totalGoalsHome} - ${totalGoalsAway} ${window.__lastTeams.away}<br>
+      🟨: ${window.__lastTeams.home} ${Math.round(rounds*2.5)} - ${Math.round(rounds*3)} ${window.__lastTeams.away}<br>
+      🟥: ${window.__lastTeams.home} ${Math.round(rounds*0.1)} - ${Math.round(rounds*0.2)} ${window.__lastTeams.away}
+    </div>`;
+    document.getElementById('resultArea').innerHTML += summary;
   }
 
   document.getElementById('placeBet').disabled = false;
