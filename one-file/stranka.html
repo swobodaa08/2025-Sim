@@ -557,7 +557,7 @@ function calcOdds(st1, st2) {
   // Ensure odds cannot go below 1.00
   k1 = Math.max(k1, 1.01);
   k2 = Math.max(k2, 1.01);
-  const kX = round2((k1 + k2) / 1.7);
+  const kX = round2(((k1 + k2) / 1.7)+1);
   return { home: k1, draw: kX, away: k2 };
 }
 function round2(n){ return Math.round(n*100)/100; }
