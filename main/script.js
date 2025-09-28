@@ -144,15 +144,15 @@ function round2(n){ return Math.round(n*100)/100; }
 
 /* expected goals heuristic (port expecting log base 1.25) */
 function expectedGoals(elo1, elo2) {
-  const max_goly = 29;
+  const max_goly = 25;
   const min_goly = 0.8;
   const ratio = (elo1 + 1) / (elo2 + 1);
   // log base 1.25 -> Math.log(ratio)/Math.log(1.25)
   let g1 = Math.log(Math.max(1e-8, ratio)) / Math.log(1.25);
   let g2 = Math.log(Math.max(1e-8, 1/ratio)) / Math.log(1.25);
   // ZVÝŠENIE OČAKÁVANÝCH GÓLOV
-  g1 *= 2.6;
-  g2 *= 2.1;
+  g1 *= 1.6;
+  g2 *= 1.1;
   g1 = clamp(g1, min_goly, max_goly);
   g2 = clamp(g2, min_goly, max_goly);
   return [g1, g2];
