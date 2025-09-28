@@ -861,8 +861,20 @@ function simulateMatch(homeName, awayName, speed = 0, onMinute=null) {
   exp_g1 *= 1.15;
 
   // sample goals by Poisson
-  const g1 = samplePoisson(exp_g1);
-  const g2 = samplePoisson(exp_g2);
+  let g1 = samplePoisson(exp_g1);
+  let g2 = samplePoisson(exp_g2);
+  // 1.8% šanca na prekvapenie: outsider vyhrá, skóre sa nastaví na výhru outsidera
+  if (Math.random() < 0.018 && st1.elo !== st2.elo) {
+    if (st1.elo > st2.elo) {
+      // Home is favorite, force away win
+      g2 = Math.max(g1 + 1, g2 + 1); // outsider gets at least one more than favorite
+      g1 = Math.min(g1, g2 - 1); // favorite loses
+    } else {
+      // Away is favorite, force home win
+      g1 = Math.max(g2 + 1, g1 + 1);
+      g2 = Math.min(g2, g1 - 1);
+    }
+  }
 
   // cards
   // Očakávané žlté a červené karty s rozptylom
@@ -1147,8 +1159,20 @@ function simulateAndRender(home, away, speed, onMinute) {
     const st1 = TEAMS[home], st2 = TEAMS[away];
     let [exp_g1, exp_g2] = expectedGoals(st1.elo||1000, st2.elo||1000);
     exp_g1 *= 1.1;
-    const g1 = samplePoisson(exp_g1);
-    const g2 = samplePoisson(exp_g2);
+    let g1 = samplePoisson(exp_g1);
+    let g2 = samplePoisson(exp_g2);
+    // 1.8% šanca na prekvapenie: outsider vyhrá, skóre sa nastaví na výhru outsidera
+    if (Math.random() < 0.018 && st1.elo !== st2.elo) {
+      if (st1.elo > st2.elo) {
+        // Home is favorite, force away win
+        g2 = Math.max(g1 + 1, g2 + 1);
+        g1 = Math.min(g1, g2 - 1);
+      } else {
+        // Away is favorite, force home win
+        g1 = Math.max(g2 + 1, g1 + 1);
+        g2 = Math.min(g2, g1 - 1);
+      }
+    }
     const yellow1 = randInt(0,4);
     const yellow2 = randInt(0,5);
     const red1 = (Math.random() < 0.01) ? 1 : 0;
